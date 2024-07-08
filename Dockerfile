@@ -3,7 +3,7 @@ FROM alpine:3.16
 # Set default environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ="America/New_York"
-# ENV PYTHONUNBUFFERED=1
+ ENV PYTHONUNBUFFERED=1
 
 # Create working directory and relevant dirs
 WORKDIR /app
