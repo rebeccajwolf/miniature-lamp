@@ -546,12 +546,13 @@ def login(browser: WebDriver, email: str, pwd: str, totpSecret: str, isMobile: b
         browser.find_element(By.ID, 'idSIButton9').click()
         # Wait 5 seconds
         time.sleep(7)
+        if isElementExists(browser, By.ID, "i0118Error"):
+            raise InvalidCredentialsException
+        answerTOTP(totpSecret)
         tooManyRequests = browser.find_element(By.TAG_NAME, "body").text
         if not tooManyRequests:
             break
-    if isElementExists(browser, By.ID, "i0118Error"):
-        raise InvalidCredentialsException
-    answerTOTP(totpSecret)
+    
     try:
         if ARGS.session:
             # Click Yes to stay signed in.
