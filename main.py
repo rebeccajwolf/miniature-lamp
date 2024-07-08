@@ -525,7 +525,7 @@ def login(browser: WebDriver, email: str, pwd: str, totpSecret: str, isMobile: b
                     checkBingLogin(browser)
                     return
         # Wait complete loading
-        waitUntilVisible(browser, By.ID, 'i0116', 10)
+        waitUntilVisible(browser, By.ID, 'i0116', 30)
         # Enter email
         print('[LOGIN]', 'Writing email...')
         browser.find_element(By.NAME, "loginfmt").send_keys(email)
@@ -536,7 +536,7 @@ def login(browser: WebDriver, email: str, pwd: str, totpSecret: str, isMobile: b
         if isElementExists(browser, By.ID, "usernameError"):
             raise InvalidCredentialsException
         # Wait complete loading
-        waitUntilVisible(browser, By.ID, 'i0118', 10)
+        waitUntilVisible(browser, By.ID, 'i0118', 30)
         # Enter password
         time.sleep(3)
         browser.find_element(By.ID, "i0118").send_keys(pwd)
