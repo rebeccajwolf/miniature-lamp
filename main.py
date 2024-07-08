@@ -649,6 +649,7 @@ def checkBingLogin(browser: WebDriver):
     time.sleep(calculateSleep(15))
     if not isElementExists(browser, By.XPATH, '//*[@id="id_s" and @aria-hidden="true"]'):
         while True:
+            print("Bing Refreshing....")
             goToURL(browser, 'https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F')
             time.sleep(calculateSleep(8))
             tryDismissBingCookieBanner(browser)
