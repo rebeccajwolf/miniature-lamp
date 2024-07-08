@@ -552,7 +552,6 @@ def login(browser: WebDriver, email: str, pwd: str, totpSecret: str, isMobile: b
         tooManyRequests = browser.find_element(By.TAG_NAME, "body").text
         if not tooManyRequests:
             break
-    
     try:
         if ARGS.session:
             # Click Yes to stay signed in.
