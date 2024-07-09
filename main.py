@@ -674,7 +674,7 @@ def checkBingLogin(browser: WebDriver):
                 time.sleep(3)
                 tryDismissBingCookieBanner(browser)
                 with contextlib.suppress(Exception):
-                    if checkBingLogin(browser):
+                    if checkIfBingLogin(browser):
                         return
             time.sleep(1)
             print("Bing Refreshing....")
@@ -762,6 +762,7 @@ def checkIfBingLogin(browser: WebDriver):
     # Check if the user is logged in to Bing
     try:
         if data := getBingInfo(browser):
+            prBlue(f"Bing Login Info = {data["userInfo"]["isRewardsUser"]}")
             return data["userInfo"]["isRewardsUser"]
         else:
             return False
