@@ -481,78 +481,77 @@ def login(browser: WebDriver, email: str, pwd: str, totpSecret: str, isMobile: b
                     browser.close()
             browser.switch_to.window(current_window)
     time.sleep(1)
-    while True:
-        # Access to bing.com
-        goToURL(browser, LOGIN_URL)
-        time.sleep(calculateSleep(15))
-        # Check if account is already logged in
-        if ARGS.session:
-            if browser.title == "":
-                waitToLoadBlankPage()
-            if browser.title == "Microsoft account privacy notice" or isElementExists(browser, By.XPATH, '//*[@id="interruptContainer"]/div[3]/div[3]/img'):
-                acceptNewPrivacy()
-            if browser.title == "We're updating our terms" or isElementExists(browser, By.ID, 'iAccrualForm'):
-                answerUpdatingTerms()
-            if browser.title == 'Is your security info still accurate?' or isElementExists(browser, By.ID, 'iLooksGood'):
-                answerToSecurityQuestion()
-            # Click No thanks on break free from password question
-            if isElementExists(browser, By.ID, "setupAppDesc") or browser.title == "Break free from your passwords":
-                answerToBreakFreeFromPassword()
-            if browser.title == 'Microsoft account | Home' or isElementExists(browser, By.CSS_SELECTOR, 'html[data-role-name="RewardsPortal"]'):
-                prGreen('[LOGIN] Account already logged in !')
-                checkRewardsLogin(browser)
+    # Access to bing.com
+    goToURL(browser, LOGIN_URL)
+    time.sleep(calculateSleep(15))
+    # Check if account is already logged in
+    if ARGS.session:
+        if browser.title == "":
+            waitToLoadBlankPage()
+        if browser.title == "Microsoft account privacy notice" or isElementExists(browser, By.XPATH, '//*[@id="interruptContainer"]/div[3]/div[3]/img'):
+            acceptNewPrivacy()
+        if browser.title == "We're updating our terms" or isElementExists(browser, By.ID, 'iAccrualForm'):
+            answerUpdatingTerms()
+        if browser.title == 'Is your security info still accurate?' or isElementExists(browser, By.ID, 'iLooksGood'):
+            answerToSecurityQuestion()
+        # Click No thanks on break free from password question
+        if isElementExists(browser, By.ID, "setupAppDesc") or browser.title == "Break free from your passwords":
+            answerToBreakFreeFromPassword()
+        if browser.title == 'Microsoft account | Home' or isElementExists(browser, By.CSS_SELECTOR, 'html[data-role-name="RewardsPortal"]'):
+            prGreen('[LOGIN] Account already logged in !')
+            checkRewardsLogin(browser)
+            print('[LOGIN]', 'Ensuring login on Bing...')
+            checkBingLogin(browser)
+            return
+        elif browser.title == 'Your account has been temporarily suspended' or browser.current_url.startswith("https://account.live.com/Abuse"):
+            raise AccountLockedException
+        elif browser.title == "Help us protect your account" or browser.current_url.startswith(
+                "https://account.live.com/proofs/Add"):
+            handleUnusualActivity(browser, isMobile)
+            return
+        elif browser.title == "Help us secure your account" or browser.current_url.startswith("https://account.live.com/recover"):
+            raise UnusualActivityException
+        elif isElementExists(browser, By.ID, 'mectrl_headerPicture') or 'Sign In or Create' in browser.title:
+            browser.find_element(By.ID, 'mectrl_headerPicture').click()
+            waitUntilVisible(browser, By.ID, 'i0118', 15)
+            if isElementExists(browser, By.ID, 'i0118'):
+                browser.find_element(By.ID, "i0118").send_keys(pwd)
+                time.sleep(2)
+                browser.find_element(By.ID, 'idSIButton9').click()
+                time.sleep(5)
+                answerTOTP(totpSecret)
+                prGreen('[LOGIN] Account logged in again !')
                 print('[LOGIN]', 'Ensuring login on Bing...')
                 checkBingLogin(browser)
                 return
-            elif browser.title == 'Your account has been temporarily suspended' or browser.current_url.startswith("https://account.live.com/Abuse"):
-                raise AccountLockedException
-            elif browser.title == "Help us protect your account" or browser.current_url.startswith(
-                    "https://account.live.com/proofs/Add"):
-                handleUnusualActivity(browser, isMobile)
-                return
-            elif browser.title == "Help us secure your account" or browser.current_url.startswith("https://account.live.com/recover"):
-                raise UnusualActivityException
-            elif isElementExists(browser, By.ID, 'mectrl_headerPicture') or 'Sign In or Create' in browser.title:
-                browser.find_element(By.ID, 'mectrl_headerPicture').click()
-                waitUntilVisible(browser, By.ID, 'i0118', 15)
-                if isElementExists(browser, By.ID, 'i0118'):
-                    browser.find_element(By.ID, "i0118").send_keys(pwd)
-                    time.sleep(2)
-                    browser.find_element(By.ID, 'idSIButton9').click()
-                    time.sleep(5)
-                    answerTOTP(totpSecret)
-                    prGreen('[LOGIN] Account logged in again !')
-                    print('[LOGIN]', 'Ensuring login on Bing...')
-                    checkBingLogin(browser)
-                    return
-        # Wait complete loading
-        waitUntilVisible(browser, By.ID, 'i0116', 10)
-        # Enter email
-        print('[LOGIN]', 'Writing email...')
-        browser.find_element(By.NAME, "loginfmt").send_keys(email)
-        # Click next
-        browser.find_element(By.ID, 'idSIButton9').click()
-        # Wait 2 seconds
-        time.sleep(calculateSleep(5))
-        if isElementExists(browser, By.ID, "usernameError"):
-            raise InvalidCredentialsException
-        # Wait complete loading
-        waitUntilVisible(browser, By.ID, 'i0118', 10)
-        # Enter password
-        time.sleep(3)
-        browser.find_element(By.ID, "i0118").send_keys(pwd)
-        # browser.execute_script("document.getElementById('i0118').value = '" + pwd + "';")
-        print('[LOGIN]', 'Writing password...')
-        # Click next
-        browser.find_element(By.ID, 'idSIButton9').click()
-        # Wait 5 seconds
-        time.sleep(7)
-        if isElementExists(browser, By.ID, "i0118Error"):
-            raise InvalidCredentialsException
-        answerTOTP(totpSecret)
-        tooManyRequests = browser.find_element(By.TAG_NAME, "body").text
-        if not tooManyRequests:
-            break
+    # Wait complete loading
+    waitUntilVisible(browser, By.ID, 'i0116', 10)
+    # Enter email
+    print('[LOGIN]', 'Writing email...')
+    browser.find_element(By.NAME, "loginfmt").send_keys(email)
+    # Click next
+    browser.find_element(By.ID, 'idSIButton9').click()
+    # Wait 2 seconds
+    time.sleep(calculateSleep(5))
+    if isElementExists(browser, By.ID, "usernameError"):
+        raise InvalidCredentialsException
+    # Wait complete loading
+    waitUntilVisible(browser, By.ID, 'i0118', 10)
+    # Enter password
+    time.sleep(3)
+    browser.find_element(By.ID, "i0118").send_keys(pwd)
+    # browser.execute_script("document.getElementById('i0118').value = '" + pwd + "';")
+    print('[LOGIN]', 'Writing password...')
+    # Click next
+    browser.find_element(By.ID, 'idSIButton9').click()
+    # Wait 5 seconds
+    time.sleep(7)
+    if isElementExists(browser, By.ID, "i0118Error"):
+        raise InvalidCredentialsException
+    answerTOTP(totpSecret)
+    # tooManyRequests = browser.find_element(By.TAG_NAME, "body").text
+    # if not tooManyRequests:
+    #     break
     try:
         if ARGS.session:
             # Click Yes to stay signed in.
