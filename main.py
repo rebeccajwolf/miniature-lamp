@@ -485,6 +485,7 @@ def login(browser: WebDriver, email: str, pwd: str, totpSecret: str, isMobile: b
         try:
             # Access to bing.com
             goToURL(browser, LOGIN_URL)
+            time.sleep(calculateSleep(15))
             # Check if account is already logged in
             if ARGS.session:
                 if browser.title == "":
