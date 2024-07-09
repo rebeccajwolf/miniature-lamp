@@ -762,7 +762,7 @@ def checkIfBingLogin(browser: WebDriver):
     # Check if the user is logged in to Bing
     try:
         if data := getBingInfo(browser):
-            prBlue(f"Bing Login Info = {data["userInfo"]["isRewardsUser"]}")
+            prBlue(f'Bing Login Info = {data["userInfo"]["isRewardsUser"]}')
             return data["userInfo"]["isRewardsUser"]
         else:
             return False
