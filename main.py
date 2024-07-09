@@ -553,7 +553,7 @@ def login(browser: WebDriver, email: str, pwd: str, totpSecret: str, isMobile: b
         answerTOTP(totpSecret)
         tooManyRequests = browser.find_element(By.TAG_NAME, "body").text
         print(f'Too Many Requests INFO = {tooManyRequests}')
-        if not tooManyRequests == "Too Many Requests":
+        if not "Too Many Requests" in tooManyRequests:
             break
     try:
         if ARGS.session:
