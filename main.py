@@ -647,14 +647,13 @@ def checkRewardsLogin(browser: WebDriver):
 
 
 # @func_set_timeout(300)
-def checkBingLogin(browser: WebDriver):
+def checkBingLoginv1(browser: WebDriver):
     """Check if logged in to Bing"""
     goToURL(browser, 'https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F')
     time.sleep(calculateSleep(15))
     if not isElementExists(browser, By.XPATH, '//*[@id="id_s" and @aria-hidden="true"]'):
-        for _ in range(10):
+        while True:
             print("Bing Refreshing....")
-            time.sleep(calculateSleep(7))
             goToURL(browser, 'https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F')
             time.sleep(calculateSleep(7))
             tryDismissBingCookieBanner(browser)
@@ -664,6 +663,21 @@ def checkBingLogin(browser: WebDriver):
             except Exception as exc:
                 displayError(exc)
     time.sleep(1)
+
+def checkBingLogin(browser: WebDriver):
+        goToURL(browser,
+            "https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F"
+        )
+        while True:
+            currentUrl = urllib.parse.urlparse(browser.current_url)
+            if currentUrl.hostname == "www.bing.com" and currentUrl.path == "/":
+                time.sleep(3)
+                tryDismissBingCookieBanner(browser)
+                with contextlib.suppress(Exception):
+                    if checkBingLogin(browser):
+                        return
+            time.sleep(1)
+            print("Bing Refreshing....")
 
 
 def handleUnusualActivity(browser: WebDriver, isMobile: bool = False):
@@ -1223,7 +1237,7 @@ def completeReadToEarn(browser: WebDriver, startingPoints=STARTING_POINTS):
     mobileApp = OAuth2Session(client_id, scope=scope, redirect_uri=redirect_uri)
     authorization_url, state = mobileApp.authorization_url(authorization_base_url, access_type="offline_access", login_hint=accountName)
     # Get Referer URL from webdriver
-    goToURL(authorization_url)
+    goToURL(browser, authorization_url)
     while True:
         print("[READ TO EARN] Waiting for Login")
         if browser.current_url[:48] == "https://login.live.com/oauth20_desktop.srf?code=":
@@ -1258,7 +1272,7 @@ def completeReadToEarn(browser: WebDriver, startingPoints=STARTING_POINTS):
         else:
             print("[READ TO EARN] Read Article " + str(i+1))
             balance = newbalance
-            time.sleep(calculateSleep(10, 20))
+            time.sleep(calculateSleep(random.randint(10, 20)))
     
     print("[READ TO EARN] Completed the Read to Earn successfully !")
     LOGS[CURRENT_ACCOUNT]['Read to Earn'] = True
