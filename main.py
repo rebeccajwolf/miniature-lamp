@@ -707,7 +707,7 @@ def handleUnusualActivity(browser: WebDriver, isMobile: bool = False):
             message = createMessage()
             sendReportToMessenger(message)
         # input('Press any key to close...')
-        os._exit(0)
+        # os._exit(0)
 
 
 def handleFirstVisit(browser: WebDriver):
