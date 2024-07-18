@@ -3730,6 +3730,7 @@ if __name__ == '__main__':
         return builtins.print(*args, **kwargs)
 
     try:
+        print("Starting...", time.sleep(random.randint(60, 120)))
         main()
     except Exception as e:
         displayError(e)
