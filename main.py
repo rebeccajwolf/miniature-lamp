@@ -1216,7 +1216,7 @@ def locateQuestCard(browser: WebDriver, activity: dict) -> WebElement:
         raise NoSuchElementException(f"could not locate the provided card: {activity['name']}")
     
 def openDailySetActivity(browser: WebDriver, cardId: int):
-        browser.find_element(By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a/div[3]/span').click()
+        browser.find_element(By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a').click()
         goto_latest_window(browser, time_to_wait=8)
         
 def openMorePromotionsActivity(browser: WebDriver, cardId: int):
