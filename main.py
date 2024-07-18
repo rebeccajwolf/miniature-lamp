@@ -675,10 +675,12 @@ def checkBingLogin(browser: WebDriver):
             currentUrl = urllib.parse.urlparse(browser.current_url)
             prBlue(f'Current Bing URL == {currentUrl}')
             if currentUrl.hostname == "www.bing.com" and currentUrl.path == "/":
+                prBlue("in Current URL")
                 time.sleep(3)
                 tryDismissBingCookieBanner(browser)
                 with contextlib.suppress(Exception):
                     if checkIfBingLogin(browser):
+                        prBlue("Checking if Bing Login")
                         return
             time.sleep(1)
             print("Bing Refreshing....")
