@@ -552,7 +552,7 @@ def login(browser: WebDriver, email: str, pwd: str, totpSecret: str, isMobile: b
             raise InvalidCredentialsException
         answerTOTP(totpSecret)
         tooManyRequests = browser.find_element(By.TAG_NAME, "body").text
-        print(f'Too Many Requests INFO = {tooManyRequests}')
+        # print(f'Too Many Requests INFO = {tooManyRequests}')
         if not "Too Many Requests" in tooManyRequests:
             break
     try:
@@ -673,17 +673,17 @@ def checkBingLogin(browser: WebDriver):
         )
         while True:
             currentUrl = urllib.parse.urlparse(browser.current_url)
-            prBlue(f'Current Bing URL == {currentUrl}')
+            # prBlue(f'Current Bing URL == {currentUrl}')
             if currentUrl.hostname == "www.bing.com" and currentUrl.path == "/":
-                prBlue("in Current URL")
+                # prBlue("in Current URL")
                 time.sleep(3)
                 tryDismissBingCookieBanner(browser)
                 with contextlib.suppress(Exception):
                     if checkIfBingLogin(browser):
-                        prBlue("Checking if Bing Login")
+                        # prBlue("Checking if Bing Login")
                         return
             time.sleep(1)
-            print("Bing Refreshing....")
+            # print("Bing Refreshing....")
 
 
 def handleUnusualActivity(browser: WebDriver, isMobile: bool = False):
@@ -770,7 +770,7 @@ def checkIfBingLogin(browser: WebDriver):
     # Check if the user is logged in to Bing
     try:
         if data := getBingInfo(browser):
-            prBlue(f'Bing Login Info = {data["userInfo"]["isRewardsUser"]}')
+            # prBlue(f'Bing Login Info = {data["userInfo"]["isRewardsUser"]}')
             return data["userInfo"]["isRewardsUser"]
         else:
             return False
