@@ -1910,22 +1910,22 @@ def completeMorePromotions(browser: WebDriver):
             elif promotion['promotionType'] == "welcometour":
                 completeMorePromotionWelcometour()
             elif promotion['promotionType'] == "urlreward" or promotion['promotionType'] == "":
-                print("Trying URLREWARD....")
+                # print("Trying URLREWARD....")
                 completeMorePromotionSearch()
             elif promotion['promotionType'] == "quiz":
-                print("Trying Quiz....")
+                # print("Trying Quiz....")
                 if promotion['pointProgressMax'] == 10:
-                    print("Trying Quiz 10 pts....")
+                    # print("Trying Quiz 10 pts....")
                     completeMorePromotionABC()
                 elif promotion['pointProgressMax'] == 30 or promotion['pointProgressMax'] == 40:
-                    print("Trying Quiz 30 40 pts....")
+                    # print("Trying Quiz 30 40 pts....")
                     completeMorePromotionQuiz()
                 elif promotion['pointProgressMax'] == 50:
-                    print("Trying Quiz 50 pts....")
+                    # print("Trying Quiz 50 pts....")
                     completeMorePromotionThisOrThat()
             else:
                 if promotion['pointProgressMax'] == 100 or promotion['pointProgressMax'] == 200:
-                    print("Trying Quiz 100 pts....")
+                    # print("Trying Quiz 100 pts....")
                     completeMorePromotionSearch()
             if promotion['complete'] is False and promotion['pointProgressMax'] == 100 and promotion[
                 'promotionType'] == "" and promotion['destinationUrl'] == BASE_URL:
@@ -3462,28 +3462,26 @@ def farmer():
                                 waitUntilVisible(browser, By.ID, 'app-host', 30)
                                 redeem_goal_title, redeem_goal_price = getRedeemGoal(browser)
                                 remainingSearches, remainingSearchesM = getRemainingSearches(browser, separateSearches=True)
-                                if remainingSearchesM != 0:
-                                    print('[BING]', 'Starting Mobile Bing searches...')
-                                    Searches(browser, True).bingSearches()
-                                    POINTS_COUNTER = getBingAccountPoints(browser)
-                                    prGreen('\n[BING] Finished Mobile Bing searches !')
-                            browser.close()
+                            if remainingSearchesM != 0:
+                                print('[BING]', 'Starting Mobile Bing searches...')
+                                Searches(browser, True).bingSearches()
+                                POINTS_COUNTER = getBingAccountPoints(browser)
+                                prGreen('\n[BING] Finished Mobile Bing searches !')
                             browser.quit()
                     
                 if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
                     prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
                     if ARGS.redeem and auto_redeem_counter < MAX_REDEEMS:
                         # Start auto-redeem process
-                        browser = browserSetupv3(False, account.get('proxy', None))
-                        print('[LOGIN]', 'Logging-in...')
-                        login(browser, account['username'], account['password'], account.get(
-                            'totpSecret', None))
-                        prGreen('[LOGIN] Logged-in successfully!')
-                        goToURL(browser, BASE_URL)
-                        waitUntilVisible(browser, By.ID, 'app-host', 30)
-                        redeemGoal(browser)
-                        browser.close()
-                        browser.quit()
+                        with browserSetupv3(False, account.get('proxy', None)) as browser:
+                            print('[LOGIN]', 'Logging-in...')
+                            login(browser, account['username'], account['password'], account.get(
+                                'totpSecret', None))
+                            prGreen('[LOGIN] Logged-in successfully!')
+                            goToURL(browser, BASE_URL)
+                            waitUntilVisible(browser, By.ID, 'app-host', 30)
+                            redeemGoal(browser)
+                            browser.quit()
                     if ARGS.telegram or ARGS.discord:
                         LOGS[CURRENT_ACCOUNT]["Redeem goal title"] = redeem_goal_title
                         LOGS[CURRENT_ACCOUNT]["Redeem goal price"] = redeem_goal_price
@@ -3494,7 +3492,6 @@ def farmer():
     except FunctionTimedOut:
         prRed('[ERROR] Time out raised.\n')
         ERROR = True
-        browser.close()
         browser.quit()
         farmer()
 
@@ -3508,7 +3505,6 @@ def farmer():
 
     except KeyboardInterrupt:
         ERROR = True
-        browser.close()
         browser.quit()
         try:
             input(
@@ -3528,7 +3524,6 @@ def farmer():
         farmer()
 
     except TOTPInvalidException:
-        browser.close()
         browser.quit()
         LOGS[CURRENT_ACCOUNT]['Last check'] = 'Your TOTP secret was wrong !'
         FINISHED_ACCOUNTS.append(CURRENT_ACCOUNT)
@@ -3539,7 +3534,6 @@ def farmer():
         farmer()
 
     except AccountLockedException:
-        browser.close()
         browser.quit()
         LOGS[CURRENT_ACCOUNT]['Last check'] = 'Your account has been locked !'
         FINISHED_ACCOUNTS.append(CURRENT_ACCOUNT)
@@ -3550,7 +3544,6 @@ def farmer():
         farmer()
 
     except InvalidCredentialsException:
-        browser.close()
         browser.quit()
         LOGS[CURRENT_ACCOUNT]['Last check'] = 'Your email or password was not valid !'
         FINISHED_ACCOUNTS.append(CURRENT_ACCOUNT)
@@ -3561,7 +3554,6 @@ def farmer():
         farmer()
 
     except UnusualActivityException:
-        browser.close()
         browser.quit()
         LOGS[CURRENT_ACCOUNT]['Last check'] = 'Unusual activity detected !'
         FINISHED_ACCOUNTS.append(CURRENT_ACCOUNT)
@@ -3572,7 +3564,6 @@ def farmer():
         farmer()
 
     except AccountSuspendedException:
-        browser.close()
         browser.quit()
         LOGS[CURRENT_ACCOUNT]['Last check'] = 'Your account has been suspended'
         LOGS[CURRENT_ACCOUNT]["Today's points"] = 'N/A'
@@ -3584,13 +3575,11 @@ def farmer():
         farmer()
 
     except RegionException:
-        browser.close()
         browser.quit()
         prRed('[ERROR] Microsoft Rewards is not available in this country or region !')
         input('[ERROR] Press any key to close...')
         os._exit(0)
     except DashboardException:
-        browser.close()
         browser.quit()
         LOGS[CURRENT_ACCOUNT]["Last check"] = "Unknown error !"
         FINISHED_ACCOUNTS.append(CURRENT_ACCOUNT)
@@ -3608,7 +3597,6 @@ def farmer():
         print('\n')
         ERROR = True
         if browser is not None:
-            browser.close()
             browser.quit()
         checkInternetConnection()
         farmer()
