@@ -706,6 +706,7 @@ def handleUnusualActivity(browser: WebDriver, isMobile: bool = False):
         if ARGS.telegram or ARGS.discord:
             message = createMessage()
             sendReportToMessenger(message)
+        raise UnusualActivityException
         # input('Press any key to close...')
         # os._exit(0)
 
