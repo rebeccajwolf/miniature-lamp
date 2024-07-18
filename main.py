@@ -35,6 +35,7 @@ from func_timeout import FunctionTimedOut, func_set_timeout
 from notifiers import get_notifier
 from random_word import RandomWords
 from userAgentGenerator import GenerateUserAgent
+from keep_alivev2 import keep_alive
 from selenium import webdriver as edgedriver
 import undetected_chromedriver as uc
 from selenium import webdriver
@@ -3722,6 +3723,7 @@ if __name__ == '__main__':
         return builtins.print(*args, **kwargs)
 
     try:
+        keep_alive()
         print("Starting...", time.sleep(random.randint(60, 120)))
         main()
     except Exception as e:
