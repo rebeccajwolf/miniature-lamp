@@ -699,13 +699,13 @@ def handleUnusualActivity(browser: WebDriver, isMobile: bool = False):
             checkBingLogin(browser)
             return
     else:
-        LOGS[CURRENT_ACCOUNT]['Last check'] = 'Unusual activity detected !'
-        FINISHED_ACCOUNTS.append(CURRENT_ACCOUNT)
-        updateLogs()
-        cleanLogs()
-        if ARGS.telegram or ARGS.discord:
-            message = createMessage()
-            sendReportToMessenger(message)
+        # LOGS[CURRENT_ACCOUNT]['Last check'] = 'Unusual activity detected !'
+        # FINISHED_ACCOUNTS.append(CURRENT_ACCOUNT)
+        # updateLogs()
+        # cleanLogs()
+        # if ARGS.telegram or ARGS.discord:
+        #     message = createMessage()
+        #     sendReportToMessenger(message)
         raise UnusualActivityException
         # input('Press any key to close...')
         # os._exit(0)
