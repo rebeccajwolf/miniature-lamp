@@ -954,7 +954,7 @@ class AttemptsStrategy(Enum):
 
 class Searches:
     maxAttempts: Final[int] = 8
-    baseDelay: Final[float] =  14.0625
+    baseDelay: Final[float] = 14.0625
     # attemptsStrategy = Final[  # todo Figure why doesn't work with equality below
     attemptsStrategy = AttemptsStrategy.exponential
 
@@ -1222,12 +1222,17 @@ def locateQuestCard(browser: WebDriver, activity: dict) -> WebElement:
         raise NoSuchElementException(f"could not locate the provided card: {activity['name']}")
     
 def openDailySetActivity(browser: WebDriver, cardId: int):
-        browser.find_element(By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a').click()
+        # browser.find_element(By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a').click()
+        card = browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}]')
+        card.click()
+        time.sleep(2)
         goto_latest_window(browser, time_to_wait=8)
         
 def openMorePromotionsActivity(browser: WebDriver, cardId: int):
         # print(f'Current URL Before Clicking: {browser.current_url}')
-        browser.find_element(By.XPATH, f'//*[@id="more-activities"]/div/mee-card[{cardId}]/div/card-content/mee-rewards-more-activities-card-item/div/a').click()
+        # browser.find_element(By.XPATH, f'//*[@id="more-activities"]/div/mee-card[{cardId}]/div/card-content/mee-rewards-more-activities-card-item/div/a').click()
+        card  = browser.execute_script(f'return document.querySelector("mee-rewards-more-activities-card").children[0].querySelector("mee-card-group").children[0].children[{cardId}]')
+        card.click()
         time.sleep(3)
         # print(f'Current URL After Clicking: {browser.current_url}')
         if re.match(r".*\/welcometour", browser.current_url):
@@ -1483,14 +1488,17 @@ def completeDailySet(browser: WebDriver):
     error = False
     todayDate = datetime.today().strftime('%m/%d/%Y')
     todayPack = []
+    i = 0
     for date_, data in d['dailySetPromotions'].items():
         if date_ == todayDate:
             todayPack = data
     for activity in todayPack:
         try:
             if not activity['complete']:
-                cardNumber = int(activity['offerId'][-1:])
+                # cardNumber = int(activity['offerId'][-1:])
+                cardNumber = i
                 openDailySetActivity(browser, cardId=cardNumber)
+                print(f'Card Name: {activity["title"]}')
                 if activity['promotionType'] == "urlreward":
                     if "poll" in activity['title']:
                         searchUrl = urllib.parse.unquote(
@@ -1827,7 +1835,6 @@ def completeMorePromotions(browser: WebDriver):
     i = 0
     for promotion in morePromotions:
         try:
-            i += 1
             promotionTitle = promotion["title"]
             # print(f"promotionTitle={promotionTitle}")
             if (promotion["complete"] is not False or promotion["pointProgressMax"] == 0):
@@ -1841,7 +1848,9 @@ def completeMorePromotions(browser: WebDriver):
                 continue
             if promotion["exclusiveLockedFeatureStatus"] == "locked":
                 continue
+            print(f"promotionTitle={promotionTitle}")
             openMorePromotionsActivity(browser, cardId=i)
+            i += 1
             if re.match(r".*\/legaltextbox", browser.current_url):
                 time.sleep(5)
                 if isElementExists(browser, By.XPATH, '//*[@id="modal-host"]/div[2]/button'):
@@ -1865,9 +1874,14 @@ def completeMorePromotions(browser: WebDriver):
                 time.sleep(8)
                 close_all_but_main(browser)
             elif "You can track your package" in promotionTitle:
-                goToURL(browser, 
-                    "https://www.bing.com/search?q=usps+tracking"
+                waitUntilClickable(
+                    browser, By.ID, "sb_form_q", time_to_wait=20
                 )
+                searchbar = browser.find_element(By.ID, "sb_form_q")
+                searchbar.click()
+                searchbar.send_keys("usps tracking")
+                searchbar.submit()
+
                 time.sleep(8)
                 close_all_but_main(browser)
             elif "Find somewhere new to explore" in promotionTitle:
@@ -1883,6 +1897,17 @@ def completeMorePromotions(browser: WebDriver):
                 searchbar = browser.find_element(By.ID, "sb_form_q")
                 searchbar.click()
                 searchbar.send_keys("pizza delivery near me")
+                searchbar.submit()
+
+                time.sleep(8)
+                close_all_but_main(browser)
+            elif "Prepare for the weather​" in promotionTitle:
+                waitUntilClickable(
+                    browser, By.ID, "sb_form_q", time_to_wait=20
+                )
+                searchbar = browser.find_element(By.ID, "sb_form_q")
+                searchbar.click()
+                searchbar.send_keys("upcoming weather")
                 searchbar.submit()
 
                 time.sleep(8)
@@ -3449,7 +3474,6 @@ def farmer():
                     LOGS[CURRENT_ACCOUNT]['PC searches'] = True
                     updateLogs()
                     ERROR = False
-                    browser.close()
                     browser.quit()
 
                     if MOBILE:
