@@ -1324,7 +1324,7 @@ def completeDailySet(browser: WebDriver):
             browser.find_element(By.ID, 'bnp_hfly_cta2').click()
             time.sleep(2)
         waitUntilClickable(browser, By.ID, "btoption0", 15)
-        time.sleep(1.5)
+        time.sleep(3)
         browser.find_element(By.ID, "btoption" +
                              str(random.randint(0, 1))).click()
         time.sleep(calculateSleep(10))
@@ -1494,55 +1494,58 @@ def completeDailySet(browser: WebDriver):
             todayPack = data
     for activity in todayPack:
         try:
-            if not activity['complete']:
-                # cardNumber = int(activity['offerId'][-1:])
-                cardNumber = i
-                openDailySetActivity(browser, cardId=cardNumber)
-                print(f'Card Name: {activity["title"]}')
-                if activity['promotionType'] == "urlreward":
-                    if "poll" in activity['title']:
-                        searchUrl = urllib.parse.unquote(
-                            urllib.parse.parse_qs(urllib.parse.urlparse(activity['destinationUrl']).query)['ru'][0])
-                        searchUrlQueries = urllib.parse.parse_qs(
-                            urllib.parse.urlparse(searchUrl).query)
-                        filters = {}
-                        for filter in searchUrlQueries['filters'][0].split(" "):
-                            filter = filter.split(':', 1)
-                            filters[filter[0]] = filter[1]
-                        if "PollScenarioId" in filters:
-                            print(
-                                '[DAILY SET]', 'Completing poll of card ' + str(cardNumber))
-                            completeDailySetSurvey()
-                    else:
-                        print('[DAILY SET]',
-                                'Completing search of card ' + str(cardNumber))
-                        completeDailySetSearch()
-                if activity['promotionType'] == "quiz":
-                    if activity['pointProgressMax'] == 50 and activity['pointProgress'] == 0:
+            if activity['complete'] is not False:
+                i += 1
+                continue
+            # cardNumber = int(activity['offerId'][-1:])
+            cardNumber = i
+            openDailySetActivity(browser, cardId=cardNumber)
+            print(f'Card Name: {activity["title"]}')
+            i += 1
+            if activity['promotionType'] == "urlreward":
+                if "poll" in activity['title']:
+                    searchUrl = urllib.parse.unquote(
+                        urllib.parse.parse_qs(urllib.parse.urlparse(activity['destinationUrl']).query)['ru'][0])
+                    searchUrlQueries = urllib.parse.parse_qs(
+                        urllib.parse.urlparse(searchUrl).query)
+                    filters = {}
+                    for filter in searchUrlQueries['filters'][0].split(" "):
+                        filter = filter.split(':', 1)
+                        filters[filter[0]] = filter[1]
+                    if "PollScenarioId" in filters:
                         print(
-                            '[DAILY SET]', 'Completing This or That of card ' + str(cardNumber))
-                        completeDailySetThisOrThat()
-                    elif (activity['pointProgressMax'] == 40 or activity['pointProgressMax'] == 30) and activity['pointProgress'] == 0:
-                        print('[DAILY SET]',
-                                'Completing quiz of card ' + str(cardNumber))
-                        completeDailySetQuiz()
-                    elif activity['pointProgressMax'] == 10 and activity['pointProgress'] == 0:
-                        searchUrl = urllib.parse.unquote(
-                            urllib.parse.parse_qs(urllib.parse.urlparse(activity['destinationUrl']).query)['ru'][0])
-                        searchUrlQueries = urllib.parse.parse_qs(
-                            urllib.parse.urlparse(searchUrl).query)
-                        filters = {}
-                        for filter in searchUrlQueries['filters'][0].split(" "):
-                            filter = filter.split(':', 1)
-                            filters[filter[0]] = filter[1]
-                        if "PollScenarioId" in filters:
-                            print(
-                                '[DAILY SET]', 'Completing poll of card ' + str(cardNumber))
-                            completeDailySetSurvey()
-                        else:
-                            print(
-                                '[DAILY SET]', 'Completing quiz of card ' + str(cardNumber))
-                            completeDailySetVariableActivity()
+                            '[DAILY SET]', 'Completing poll of card ' + str(cardNumber))
+                        completeDailySetSurvey()
+                else:
+                    print('[DAILY SET]',
+                            'Completing search of card ' + str(cardNumber))
+                    completeDailySetSearch()
+            if activity['promotionType'] == "quiz":
+                if activity['pointProgressMax'] == 50 and activity['pointProgress'] == 0:
+                    print(
+                        '[DAILY SET]', 'Completing This or That of card ' + str(cardNumber))
+                    completeDailySetThisOrThat()
+                elif (activity['pointProgressMax'] == 40 or activity['pointProgressMax'] == 30) and activity['pointProgress'] == 0:
+                    print('[DAILY SET]',
+                            'Completing quiz of card ' + str(cardNumber))
+                    completeDailySetQuiz()
+                elif activity['pointProgressMax'] == 10 and activity['pointProgress'] == 0:
+                    searchUrl = urllib.parse.unquote(
+                        urllib.parse.parse_qs(urllib.parse.urlparse(activity['destinationUrl']).query)['ru'][0])
+                    searchUrlQueries = urllib.parse.parse_qs(
+                        urllib.parse.urlparse(searchUrl).query)
+                    filters = {}
+                    for filter in searchUrlQueries['filters'][0].split(" "):
+                        filter = filter.split(':', 1)
+                        filters[filter[0]] = filter[1]
+                    if "PollScenarioId" in filters:
+                        print(
+                            '[DAILY SET]', 'Completing poll of card ' + str(cardNumber))
+                        completeDailySetSurvey()
+                    else:
+                        print(
+                            '[DAILY SET]', 'Completing quiz of card ' + str(cardNumber))
+                        completeDailySetVariableActivity()
         except Exception as exc:
             displayError(exc)
             error = True
@@ -1874,14 +1877,9 @@ def completeMorePromotions(browser: WebDriver):
                 time.sleep(8)
                 close_all_but_main(browser)
             elif "You can track your package" in promotionTitle:
-                waitUntilClickable(
-                    browser, By.ID, "sb_form_q", time_to_wait=20
+                goToURL(browser, 
+                    "https://www.bing.com/search?q=usps+tracking"
                 )
-                searchbar = browser.find_element(By.ID, "sb_form_q")
-                searchbar.click()
-                searchbar.send_keys("usps tracking")
-                searchbar.submit()
-
                 time.sleep(8)
                 close_all_but_main(browser)
             elif "Find somewhere new to explore" in promotionTitle:
@@ -3494,7 +3492,21 @@ def farmer():
                         POINTS_COUNTER = getBingAccountPoints(browser)
                         prGreen('\n[BING] Finished Mobile Bing searches !')
                     browser.quit()
-                    
+            if redeem_goal_title is None:
+                with browserSetupv3(False, account.get('proxy', None)) as browser :
+                    print('[LOGIN]', 'Logging-in...')
+                    login(browser, account['username'], account['password'], account.get(
+                        'totpSecret', None))
+                    prGreen('[LOGIN] Logged-in successfully !')
+                    STARTING_POINTS = getBingAccountPoints(browser)
+                    prGreen('[POINTS] You have ' + str(STARTING_POINTS) +
+                            ' points on your account !')
+                    goToURL(browser, BASE_URL)
+                    waitUntilVisible(browser, By.ID, 'app-host', 30)
+                    redeem_goal_title, redeem_goal_price = getRedeemGoal(browser)
+                    browser.quit()
+            
+            
             if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
                 prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
                 if ARGS.redeem and auto_redeem_counter < MAX_REDEEMS:
