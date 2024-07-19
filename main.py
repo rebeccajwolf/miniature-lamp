@@ -393,7 +393,7 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
         browser = edgedriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()), options=options)
     else:
         # browser = uc.Chrome(driver_executable_path="chromedriver", options=options, use_subprocess=False, user_data_dir= user_data if ARGS.session or ARGS.account_browser else None, no_sandbox=False)
-        browser = uc.Chrome(driver_executable_path="chromedriver", options=options, use_subprocess=False, user_data_dir= user_data.as_posix() if ARGS.session or ARGS.account_browser else None, no_sandbox=False)
+        browser = uc.Chrome(driver_executable_path="chromedriver", options=options, user_data_dir= user_data.as_posix() if ARGS.session or ARGS.account_browser else None, no_sandbox=False)
     return browser
 
 @retry_on_500_errors
