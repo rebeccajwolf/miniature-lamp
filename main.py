@@ -1223,6 +1223,7 @@ def locateQuestCard(browser: WebDriver, activity: dict) -> WebElement:
     
 def openDailySetActivity(browser: WebDriver, cardId: int):
         # browser.find_element(By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a').click()
+        waitUntilClickable(browser, By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a', 15)
         card = browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}]')
         card.click()
         time.sleep(2)
@@ -1309,6 +1310,10 @@ def completeDailySet(browser: WebDriver):
         except:
             pass
         time.sleep(calculateSleep(15))
+        html = browser.find_element(By.TAG_NAME, 'html')
+        for _ in range(3):
+            html.send_keys(Keys.END)
+            html.send_keys(Keys.HOME)
         close_all_but_main(browser)
         time.sleep(2)
 
@@ -1499,8 +1504,9 @@ def completeDailySet(browser: WebDriver):
                 continue
             # cardNumber = int(activity['offerId'][-1:])
             cardNumber = i
-            openDailySetActivity(browser, cardId=cardNumber)
             print(f'Card Name: {activity["title"]}')
+            open_in_new_tab(browser, url = activity["destinationUrl"])
+            # openDailySetActivity(browser, cardId=cardNumber)
             i += 1
             if activity['promotionType'] == "urlreward":
                 if "poll" in activity['title']:
@@ -1573,6 +1579,10 @@ def completePunchCards(browser: WebDriver):
                     browser.find_element(By.XPATH, "//a[@class='offer-cta']/div").click()
                     goto_latest_window(browser, random.randint(13, 17))
                     time.sleep(calculateSleep(7))
+                    html = browser.find_element(By.TAG_NAME, 'html')
+                    for _ in range(3):
+                        html.send_keys(Keys.END)
+                        html.send_keys(Keys.HOME)
                     close_all_but_main(browser)
                     time.sleep(2)
                 if child['promotionType'] == "quiz" and child['pointProgressMax'] >= 50:
@@ -1697,6 +1707,10 @@ def completeMorePromotions(browser: WebDriver):
         except:
             pass
         time.sleep(calculateSleep(15))
+        html = browser.find_element(By.TAG_NAME, 'html')
+        for _ in range(3):
+            html.send_keys(Keys.END)
+            html.send_keys(Keys.HOME)
         close_all_but_main(browser)
         time.sleep(2)
 
@@ -3416,6 +3430,7 @@ def farmer():
             if not LOGS[CURRENT_ACCOUNT]['PC searches']:
                 with browserSetupv3(False, account.get('proxy', None)) as browser :
                     print('[LOGIN]', 'Logging-in...')
+                    print("In PC Checking")
                     login(browser, account['username'], account['password'], account.get(
                         'totpSecret', None))
                     prGreen('[LOGIN] Logged-in successfully !')
@@ -3492,9 +3507,27 @@ def farmer():
                         POINTS_COUNTER = getBingAccountPoints(browser)
                         prGreen('\n[BING] Finished Mobile Bing searches !')
                     browser.quit()
-            if redeem_goal_title is None:
+            try:
+                if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
+                    prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
+                    if ARGS.redeem and auto_redeem_counter < MAX_REDEEMS:
+                        # Start auto-redeem process
+                        with browserSetupv3(False, account.get('proxy', None)) as browser:
+                            print('[LOGIN]', 'Logging-in...')
+                            login(browser, account['username'], account['password'], account.get(
+                                'totpSecret', None))
+                            prGreen('[LOGIN] Logged-in successfully!')
+                            goToURL(browser, BASE_URL)
+                            waitUntilVisible(browser, By.ID, 'app-host', 30)
+                            redeemGoal(browser)
+                            browser.quit()
+                    if ARGS.telegram or ARGS.discord:
+                        LOGS[CURRENT_ACCOUNT]["Redeem goal title"] = redeem_goal_title
+                        LOGS[CURRENT_ACCOUNT]["Redeem goal price"] = redeem_goal_price
+            except:
                 with browserSetupv3(False, account.get('proxy', None)) as browser :
                     print('[LOGIN]', 'Logging-in...')
+                    print('in Redeem Error...')
                     login(browser, account['username'], account['password'], account.get(
                         'totpSecret', None))
                     prGreen('[LOGIN] Logged-in successfully !')
@@ -3505,24 +3538,22 @@ def farmer():
                     waitUntilVisible(browser, By.ID, 'app-host', 30)
                     redeem_goal_title, redeem_goal_price = getRedeemGoal(browser)
                     browser.quit()
-            
-            
-            if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
-                prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
-                if ARGS.redeem and auto_redeem_counter < MAX_REDEEMS:
-                    # Start auto-redeem process
-                    with browserSetupv3(False, account.get('proxy', None)) as browser:
-                        print('[LOGIN]', 'Logging-in...')
-                        login(browser, account['username'], account['password'], account.get(
-                            'totpSecret', None))
-                        prGreen('[LOGIN] Logged-in successfully!')
-                        goToURL(browser, BASE_URL)
-                        waitUntilVisible(browser, By.ID, 'app-host', 30)
-                        redeemGoal(browser)
-                        browser.quit()
-                if ARGS.telegram or ARGS.discord:
-                    LOGS[CURRENT_ACCOUNT]["Redeem goal title"] = redeem_goal_title
-                    LOGS[CURRENT_ACCOUNT]["Redeem goal price"] = redeem_goal_price
+                if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
+                    prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
+                    if ARGS.redeem and auto_redeem_counter < MAX_REDEEMS:
+                        # Start auto-redeem process
+                        with browserSetupv3(False, account.get('proxy', None)) as browser:
+                            print('[LOGIN]', 'Logging-in...')
+                            login(browser, account['username'], account['password'], account.get(
+                                'totpSecret', None))
+                            prGreen('[LOGIN] Logged-in successfully!')
+                            goToURL(browser, BASE_URL)
+                            waitUntilVisible(browser, By.ID, 'app-host', 30)
+                            redeemGoal(browser)
+                            browser.quit()
+                    if ARGS.telegram or ARGS.discord:
+                        LOGS[CURRENT_ACCOUNT]["Redeem goal title"] = redeem_goal_title
+                        LOGS[CURRENT_ACCOUNT]["Redeem goal price"] = redeem_goal_price
             finishedAccount()
             cleanLogs()
             updateLogs()
