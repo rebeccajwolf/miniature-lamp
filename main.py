@@ -3476,44 +3476,44 @@ def farmer():
                     ERROR = False
                     browser.quit()
 
-                    if MOBILE:
-                        with browserSetupv3(True, account.get('proxy', None)) as browser:
-                            print('[LOGIN]', 'Logging-in mobile...')
-                            login(browser, account['username'], account['password'], account.get(
-                                'totpSecret', None), True)
-                            prGreen('[LOGIN] Logged-in successfully !')
-                            if LOGS[account['username']]['PC searches'] and ERROR:
-                                STARTING_POINTS = POINTS_COUNTER
-                                goToURL(browser, BASE_URL)
-                                waitUntilVisible(browser, By.ID, 'app-host', 30)
-                                redeem_goal_title, redeem_goal_price = getRedeemGoal(browser)
-                                remainingSearches, remainingSearchesM = getRemainingSearches(browser, separateSearches=True)
-                            if remainingSearchesM != 0:
-                                print('[BING]', 'Starting Mobile Bing searches...')
-                                Searches(browser, True).bingSearches()
-                                POINTS_COUNTER = getBingAccountPoints(browser)
-                                prGreen('\n[BING] Finished Mobile Bing searches !')
-                            browser.quit()
+            if MOBILE:
+                with browserSetupv3(True, account.get('proxy', None)) as browser:
+                    print('[LOGIN]', 'Logging-in mobile...')
+                    login(browser, account['username'], account['password'], account.get(
+                        'totpSecret', None), True)
+                    prGreen('[LOGIN] Logged-in successfully !')
+                    if LOGS[account['username']]['PC searches'] and ERROR:
+                        STARTING_POINTS = POINTS_COUNTER
+                        goToURL(browser, BASE_URL)
+                        waitUntilVisible(browser, By.ID, 'app-host', 30)
+                        redeem_goal_title, redeem_goal_price = getRedeemGoal(browser)
+                        remainingSearches, remainingSearchesM = getRemainingSearches(browser, separateSearches=True)
+                    if remainingSearchesM != 0:
+                        print('[BING]', 'Starting Mobile Bing searches...')
+                        Searches(browser, True).bingSearches()
+                        POINTS_COUNTER = getBingAccountPoints(browser)
+                        prGreen('\n[BING] Finished Mobile Bing searches !')
+                    browser.quit()
                     
-                if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
-                    prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
-                    if ARGS.redeem and auto_redeem_counter < MAX_REDEEMS:
-                        # Start auto-redeem process
-                        with browserSetupv3(False, account.get('proxy', None)) as browser:
-                            print('[LOGIN]', 'Logging-in...')
-                            login(browser, account['username'], account['password'], account.get(
-                                'totpSecret', None))
-                            prGreen('[LOGIN] Logged-in successfully!')
-                            goToURL(browser, BASE_URL)
-                            waitUntilVisible(browser, By.ID, 'app-host', 30)
-                            redeemGoal(browser)
-                            browser.quit()
-                    if ARGS.telegram or ARGS.discord:
-                        LOGS[CURRENT_ACCOUNT]["Redeem goal title"] = redeem_goal_title
-                        LOGS[CURRENT_ACCOUNT]["Redeem goal price"] = redeem_goal_price
-                finishedAccount()
-                cleanLogs()
-                updateLogs()
+            if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
+                prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
+                if ARGS.redeem and auto_redeem_counter < MAX_REDEEMS:
+                    # Start auto-redeem process
+                    with browserSetupv3(False, account.get('proxy', None)) as browser:
+                        print('[LOGIN]', 'Logging-in...')
+                        login(browser, account['username'], account['password'], account.get(
+                            'totpSecret', None))
+                        prGreen('[LOGIN] Logged-in successfully!')
+                        goToURL(browser, BASE_URL)
+                        waitUntilVisible(browser, By.ID, 'app-host', 30)
+                        redeemGoal(browser)
+                        browser.quit()
+                if ARGS.telegram or ARGS.discord:
+                    LOGS[CURRENT_ACCOUNT]["Redeem goal title"] = redeem_goal_title
+                    LOGS[CURRENT_ACCOUNT]["Redeem goal price"] = redeem_goal_price
+            finishedAccount()
+            cleanLogs()
+            updateLogs()
 
     except FunctionTimedOut:
         prRed('[ERROR] Time out raised.\n')
