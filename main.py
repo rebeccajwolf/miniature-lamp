@@ -806,6 +806,11 @@ def close_all_but_main(browser: WebDriver):
     finally:
         browser.switch_to.window(browser.window_handles[0])
 
+def open_in_new_tab(browser: WebDriver, url: str):
+    browser.execute_script("window.open('');")
+    goto_latest_window(browser, time_to_wait=9)
+    goToURL(browser, url)
+
 def goto_latest_window(browser: WebDriver, time_to_wait: int = 0):
     """
     Switches to newest open window
