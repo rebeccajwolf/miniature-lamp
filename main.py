@@ -1108,7 +1108,7 @@ class Searches:
         # Function to retrieve related terms from Bing API
         relatedTerms: list[str] = requests.get(
             f"https://api.bing.com/osjson.aspx?query={term}",
-            headers={"User-agent": GenerateUserAgent().userAgent(browserConfig={}, mobile=self.isMobile)[0]},
+            headers={"User-agent": GenerateUserAgent().userAgent(browserConfig=None, mobile=self.isMobile)[0]},
         ).json()[1]
         if not relatedTerms:
             return [term]
@@ -1575,6 +1575,7 @@ def completeDailySet(browser: WebDriver):
         time.sleep(2)
 
     print('[DAILY SET]', 'Trying to complete the Daily Set...')
+    browser.execute_script("window.scrollTo(0, 1080)")
     d = getDashboardData(browser)
     error = False
     todayDate = datetime.today().strftime('%m/%d/%Y')
@@ -1608,7 +1609,7 @@ def completeDailySet(browser: WebDriver):
                         print(
                             '[DAILY SET]', 'Completing poll of card ' + str(cardNumber))
                         completeDailySetSurvey()
-                elif "weekly+quiz" in activity["destinationUrl"]:
+                elif "weekly+quiz" in activity["destinationUrl"] or "homepage+quiz" in activity["destinationUrl"]:
                     print(
                             '[DAILY SET]', 'Completing quiz of card ' + str(cardNumber))
                     completeDailySetVariableActivity()
@@ -1787,7 +1788,7 @@ def completeMorePromotions(browser: WebDriver):
             goToURL(browser, BASE_URL)
             time.sleep(2)
 
-    def completeMorePromotionSearch():
+    def completeMorePromotionSearch(word_to_search: str = None):
         """Complete more promotion search"""
         time.sleep(2.5)
         try:
@@ -1796,13 +1797,20 @@ def completeMorePromotions(browser: WebDriver):
                 return
         except:
             pass
-        time.sleep(calculateSleep(15))
+        time.sleep(calculateSleep(7))
+        if word_to_search is not None:
+            waitUntilClickable(browser, By.XPATH, '//*[@id="sb_form_q"]', time_to_wait=20)
+            searchbar = browser.find_element(By.XPATH, '//*[@id="sb_form_q"]')
+            searchbar.click()
+            searchbar.send_keys(word_to_search)
+            searchbar.submit()
+            time.sleep(7)
         html = browser.find_element(By.TAG_NAME, 'html')
         for _ in range(3):
             html.send_keys(Keys.END)
             html.send_keys(Keys.HOME)
-        close_all_but_main(browser)
         time.sleep(2)
+        close_all_but_main(browser)
 
     def completeMorePromotionQuiz():
         """Complete more promotion quiz"""
@@ -1939,96 +1947,56 @@ def completeMorePromotions(browser: WebDriver):
 
     print('[MORE PROMO]', 'Trying to complete More Promotions...')
     morePromotions: list[dict] = getDashboardData(browser)['morePromotions']
-    i = 0
+    # i = 0
     for promotion in morePromotions:
         try:
             promotionTitle = promotion["title"]
             # print(f"promotionTitle={promotionTitle}")
             if (promotion["complete"] is not False or promotion["pointProgressMax"] == 0):
-                continue
-            if "Mid-week puzzle" in promotionTitle:
-                print(
-                    "Mid-week puzzle found",
-                    "MS-Rewards-Farmer detected mid-week puzzle activity, which isn't supported."
-                    " Please manually complete",
-                )
+                # i += 1
                 continue
             if promotion["exclusiveLockedFeatureStatus"] == "locked":
+                # i += 1
                 continue
+            # if "Mid-week puzzle" in promotionTitle:
+            #     print(
+            #         "Mid-week puzzle found",
+            #         "MS-Rewards-Farmer detected mid-week puzzle activity, which isn't supported."
+            #         " Please manually complete",
+            #     )
+            #     # i += 1
+            #     continue
             browser.execute_script("window.scrollTo(0, 1080)")
             print(f"promotionTitle={promotionTitle}")
-            openMorePromotionsActivity(browser, cardId=i)
-            i += 1
+            openMorePromotionsActivity(browser, cardId=morePromotions.index(promotion))
+            # i += 1
             if re.match(r".*\/legaltextbox", browser.current_url):
                 time.sleep(5)
                 if isElementExists(browser, By.XPATH, '//*[@id="modal-host"]/div[2]/button'):
-                    # print("Clicking Close Dialog")
                     browser.find_element(By.XPATH, '//*[@id="modal-host"]/div[2]/button').click()
                     continue
             if "Search the lyrics of a song" in promotionTitle:
-                    goToURL(browser, "https://www.bing.com/search?q=black+sabbath+supernaut+lyrics")
-                    time.sleep(8)
-                    close_all_but_main(browser)
+                completeMorePromotionSearch("black sabbath supernaut lyrics")
             elif "Translate anything" in promotionTitle:
-                goToURL(browser, "https://www.bing.com/search?q=translate+pencil+sharpener+to+spanish")
-                time.sleep(8)
-                close_all_but_main(browser)
+                completeMorePromotionSearch(browser, "translate pencil sharpener to spanish")
             elif "Discover open job roles" in promotionTitle:
-                goToURL(browser, "https://www.bing.com/search?q=walmart+open+job+roles")
-                time.sleep(8)
-                close_all_but_main(browser)
+                completeMorePromotionSearch("walmart open job roles")
             elif "Plan a quick getaway" in promotionTitle:
-                goToURL(browser, "https://www.bing.com/search?q=flights+nyc+to+paris")
-                time.sleep(8)
-                close_all_but_main(browser)
+                completeMorePromotionSearch("flights nyc to paris")
             elif "You can track your package" in promotionTitle:
-                goToURL(browser, 
-                    "https://www.bing.com/search?q=usps+tracking"
-                )
-                time.sleep(8)
-                close_all_but_main(browser)
+                completeMorePromotionSearch("usps tracking")
+                # bar = browser.execute_script('reutrn document.getElementsByClassName("tracking_Number_Input")[0].children[1]')
+                # bar.click()
             elif "Find somewhere new to explore" in promotionTitle:
-                goToURL(browser, 
-                    "https://www.bing.com/search?q=directions+to+new+york"
-                )
-                time.sleep(8)
-                close_all_but_main(browser)
+                completeMorePromotionSearch("directions to new york")
             elif "Too tired to cook tonight?" in promotionTitle:
-                waitUntilClickable(browser, By.XPATH, '//*[@id="sb_form_q"]', time_to_wait=20)
-                searchbar = browser.find_element(By.XPATH, '//*[@id="sb_form_q"]')
-                searchbar.click()
-                searchbar.send_keys("pizza delivery near me")
-                searchbar.submit()
-
-                time.sleep(8)
-                close_all_but_main(browser)
+                completeMorePromotionSearch("pizza delivery near me")
             elif "Prepare for the weather​" in promotionTitle:
-                waitUntilClickable(browser, By.XPATH, '//*[@id="sb_form_q"]', time_to_wait=20)
-                searchbar = browser.find_element(By.XPATH, '//*[@id="sb_form_q"]')
-                searchbar.click()
-                searchbar.send_keys("upcoming weather")
-                searchbar.submit()
-
-                time.sleep(8)
-                close_all_but_main(browser)
+                completeMorePromotionSearch("upcoming weather")
             elif "Quickly convert your money" in promotionTitle:
-                waitUntilClickable(browser, By.XPATH, '//*[@id="sb_form_q"]', time_to_wait=20)
-                searchbar = browser.find_element(By.XPATH, '//*[@id="sb_form_q"]')
-                searchbar.click()
-                searchbar.send_keys("convert 374 usd to yen")
-                searchbar.submit()
-
-                time.sleep(8)
-                close_all_but_main(browser)
+                completeMorePromotionSearch("convert 374 usd to yen")
             elif "Learn to cook a new recipe" in promotionTitle:
-                waitUntilClickable(browser, By.XPATH, '//*[@id="sb_form_q"]', time_to_wait=20)
-                searchbar = browser.find_element(By.XPATH, '//*[@id="sb_form_q"]')
-                searchbar.click()
-                searchbar.send_keys("how cook pierogi")
-                searchbar.submit()
-
-                time.sleep(8)
-                close_all_but_main(browser)
+                completeMorePromotionSearch("how cook pierogi")
             elif promotion['promotionType'] == "welcometour":
                 completeMorePromotionWelcometour()
             elif promotion['promotionType'] == "urlreward" or promotion['promotionType'] == "":
@@ -3551,6 +3519,7 @@ def farmer():
                         completePunchCards(browser)
                     if not LOGS[CURRENT_ACCOUNT]['More promotions']:
                         completeMorePromotions(browser)
+                    POINTS_COUNTER = getBingAccountPoints(browser)
                     # if not ARGS.skip_shopping and not LOGS[CURRENT_ACCOUNT]['MSN shopping game']:
                     #     finished = False
                     #     if ARGS.repeat_shopping:
