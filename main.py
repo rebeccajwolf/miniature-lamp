@@ -1994,10 +1994,8 @@ def completeMorePromotions(browser: WebDriver):
                 time.sleep(8)
                 close_all_but_main(browser)
             elif "Too tired to cook tonight?" in promotionTitle:
-                waitUntilClickable(
-                    browser, By.ID, "sb_form_q", time_to_wait=20
-                )
-                searchbar = browser.find_element(By.ID, "sb_form_q")
+                waitUntilClickable(browser, By.XPATH, '//*[@id="sb_form_q"]', time_to_wait=20)
+                searchbar = browser.find_element(By.XPATH, '//*[@id="sb_form_q"]')
                 searchbar.click()
                 searchbar.send_keys("pizza delivery near me")
                 searchbar.submit()
@@ -2005,10 +2003,8 @@ def completeMorePromotions(browser: WebDriver):
                 time.sleep(8)
                 close_all_but_main(browser)
             elif "Prepare for the weather​" in promotionTitle:
-                waitUntilClickable(
-                    browser, By.ID, "sb_form_q", time_to_wait=20
-                )
-                searchbar = browser.find_element(By.ID, "sb_form_q")
+                waitUntilClickable(browser, By.XPATH, '//*[@id="sb_form_q"]', time_to_wait=20)
+                searchbar = browser.find_element(By.XPATH, '//*[@id="sb_form_q"]')
                 searchbar.click()
                 searchbar.send_keys("upcoming weather")
                 searchbar.submit()
@@ -2016,10 +2012,8 @@ def completeMorePromotions(browser: WebDriver):
                 time.sleep(8)
                 close_all_but_main(browser)
             elif "Quickly convert your money" in promotionTitle:
-                waitUntilClickable(
-                    browser, By.ID, "sb_form_q", time_to_wait=20
-                )
-                searchbar = browser.find_element(By.ID, "sb_form_q")
+                waitUntilClickable(browser, By.XPATH, '//*[@id="sb_form_q"]', time_to_wait=20)
+                searchbar = browser.find_element(By.XPATH, '//*[@id="sb_form_q"]')
                 searchbar.click()
                 searchbar.send_keys("convert 374 usd to yen")
                 searchbar.submit()
@@ -2027,10 +2021,8 @@ def completeMorePromotions(browser: WebDriver):
                 time.sleep(8)
                 close_all_but_main(browser)
             elif "Learn to cook a new recipe" in promotionTitle:
-                waitUntilClickable(
-                    browser, By.ID, "sb_form_q", time_to_wait=20
-                )
-                searchbar = browser.find_element(By.ID, "sb_form_q")
+                waitUntilClickable(browser, By.XPATH, '//*[@id="sb_form_q"]', time_to_wait=20)
+                searchbar = browser.find_element(By.XPATH, '//*[@id="sb_form_q"]')
                 searchbar.click()
                 searchbar.send_keys("how cook pierogi")
                 searchbar.submit()
@@ -3882,7 +3874,7 @@ if __name__ == '__main__':
         return builtins.print(*args, **kwargs)
 
     try:
-        keep_alive()
+        # keep_alive()
         print("Starting...", time.sleep(random.randint(60, 120)))
         main()
     except Exception as e:
