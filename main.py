@@ -439,13 +439,13 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
     print(f"Screen size: {screenWidth}x{screenHeight}")
     print(f"Device size: {deviceWidth}x{deviceHeight}")
 
-    if isMobile:
-        browser.execute_cdp_cmd(
-            "Emulation.setTouchEmulationEnabled",
-            {
-                "enabled": True,
-            },
-        )
+    # if isMobile:
+    #     browser.execute_cdp_cmd(
+    #         "Emulation.setTouchEmulationEnabled",
+    #         {
+    #             "enabled": True,
+    #         },
+    #     )
 
     # browser.execute_cdp_cmd(
     #     "Emulation.setDeviceMetricsOverride",
@@ -468,14 +468,14 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
     #     },
     # )
 
-    browser.execute_cdp_cmd(
-        "Emulation.setUserAgentOverride",
-        {
-            "userAgent": user_agent[0],
-            "platform": user_agent[1]["platform"],
-            "userAgentMetadata": user_agent[1],
-        },
-    )
+    # browser.execute_cdp_cmd(
+    #     "Emulation.setUserAgentOverride",
+    #     {
+    #         "userAgent": user_agent[0],
+    #         "platform": user_agent[1]["platform"],
+    #         "userAgentMetadata": user_agent[1],
+    #     },
+    # )
     return browser
 
 @retry_on_500_errors
@@ -3490,7 +3490,7 @@ def farmer():
                             ' points on your account !')
                     goToURL(browser, BASE_URL)
                     waitUntilVisible(browser, By.ID, 'app-host', 30)
-                    redeem_goal_title, redeem_goal_price = getRedeemGoal(browser)
+                    # redeem_goal_title, redeem_goal_price = getRedeemGoal(browser)
 
                     # # Update goal if it is not the required one for auto-redeem
                     # if ARGS.redeem:
