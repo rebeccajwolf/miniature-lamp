@@ -447,26 +447,26 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
             },
         )
 
-    browser.execute_cdp_cmd(
-        "Emulation.setDeviceMetricsOverride",
-        {
-            "width": deviceWidth,
-            "height": deviceHeight,
-            "deviceScaleFactor": 0,
-            "mobile": isMobile,
-            "screenWidth": screenWidth,
-            "screenHeight": screenHeight,
-            "positionX": 0,
-            "positionY": 0,
-            "viewport": {
-                "x": 0,
-                "y": 0,
-                "width": deviceWidth,
-                "height": deviceHeight,
-                "scale": 1,
-            },
-        },
-    )
+    # browser.execute_cdp_cmd(
+    #     "Emulation.setDeviceMetricsOverride",
+    #     {
+    #         "width": deviceWidth,
+    #         "height": deviceHeight,
+    #         "deviceScaleFactor": 0,
+    #         "mobile": isMobile,
+    #         "screenWidth": screenWidth,
+    #         "screenHeight": screenHeight,
+    #         "positionX": 0,
+    #         "positionY": 0,
+    #         "viewport": {
+    #             "x": 0,
+    #             "y": 0,
+    #             "width": deviceWidth,
+    #             "height": deviceHeight,
+    #             "scale": 1,
+    #         },
+    #     },
+    # )
 
     browser.execute_cdp_cmd(
         "Emulation.setUserAgentOverride",
