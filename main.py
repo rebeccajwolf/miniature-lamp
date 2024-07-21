@@ -345,7 +345,12 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
         return sessionsDir
     
     user_data = setupProfiles()
-    user_agent = GenerateUserAgent().userAgent(browserConfig=None, mobile=isMobile)
+    browserConfig = getBrowserConfig(user_data)
+    user_agent = GenerateUserAgent().userAgent(browserConfig=browserConfig, mobile=isMobile)
+    newBrowserConfig = user_agent[2]
+    if newBrowserConfig:
+        browserConfig = newBrowserConfig
+        saveBrowserConfig(user_data, browserConfig)
     from selenium.webdriver.edge.options import Options as EdgeOptions
     if ARGS.edge:
         options = EdgeOptions()
@@ -387,7 +392,6 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
 
     options.headless = True if ARGS.headless and ARGS.account_browser is None else False
     options.add_argument("--log-level=3")
-    options.add_argument("--incognito")
     options.add_argument("--blink-settings=imagesEnabled=false")
     options.add_argument("--ignore-certificate-errors")
     options.add_argument("--ignore-certificate-errors-spki-list")
@@ -400,20 +404,80 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
     options.add_argument('--disable-features=PrivacySandboxSettings4')
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    # if platform.system() == 'Linux':
-    #     options.add_argument("--no-sandbox")
-    #     options.add_argument("--disable-dev-shm-usage")
     if ARGS.edge:
         browser = edgedriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()), options=options)
     else:
         # browser = uc.Chrome(driver_executable_path="chromedriver", options=options, use_subprocess=False, user_data_dir= user_data if ARGS.session or ARGS.account_browser else None, no_sandbox=False)
         browser = uc.Chrome(driver_executable_path="chromedriver", options=options, user_data_dir= user_data.as_posix() if ARGS.session or ARGS.account_browser else None, no_sandbox=False)
+    if browserConfig.get("sizes"):
+            deviceHeight = browserConfig["sizes"]["height"]
+            deviceWidth = browserConfig["sizes"]["width"]
+    else:
+        if isMobile:
+            deviceHeight = random.randint(568, 1024)
+            deviceWidth = random.randint(320, min(576, int(deviceHeight * 0.7)))
+        else:
+            deviceWidth = random.randint(1024, 2560)
+            deviceHeight = random.randint(768, min(1440, int(deviceWidth * 0.8)))
+        browserConfig["sizes"] = {
+            "height": deviceHeight,
+            "width": deviceWidth,
+        }
+        saveBrowserConfig(user_data, browserConfig)
+
+    if isMobile:
+        screenHeight = deviceHeight + 146
+        screenWidth = deviceWidth
+    else:
+        screenWidth = deviceWidth + 55
+        screenHeight = deviceHeight + 151
+
+    print(f"Screen size: {screenWidth}x{screenHeight}")
+    print(f"Device size: {deviceWidth}x{deviceHeight}")
+
+    if isMobile:
+        browser.execute_cdp_cmd(
+            "Emulation.setTouchEmulationEnabled",
+            {
+                "enabled": True,
+            },
+        )
+
+    browser.execute_cdp_cmd(
+        "Emulation.setDeviceMetricsOverride",
+        {
+            "width": deviceWidth,
+            "height": deviceHeight,
+            "deviceScaleFactor": 0,
+            "mobile": isMobile,
+            "screenWidth": screenWidth,
+            "screenHeight": screenHeight,
+            "positionX": 0,
+            "positionY": 0,
+            "viewport": {
+                "x": 0,
+                "y": 0,
+                "width": deviceWidth,
+                "height": deviceHeight,
+                "scale": 1,
+            },
+        },
+    )
+
+    browser.execute_cdp_cmd(
+        "Emulation.setUserAgentOverride",
+        {
+            "userAgent": user_agent[0],
+            "platform": user_agent[1]["platform"],
+            "userAgentMetadata": user_agent[1],
+        },
+    )
     return browser
 
 @retry_on_500_errors
 def goToURL(browser: WebDriver, url: str):
     browser.get(url)
-    browser.set_page_load_timeout(30)
+    browser.set_page_load_timeout(60)
 
 
 def displayError(exc: Exception):
@@ -3490,53 +3554,53 @@ def farmer():
                         POINTS_COUNTER = getBingAccountPoints(browser)
                         prGreen('\n[BING] Finished Mobile Bing searches !')
                     browser.quit()
-            try:
-                if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
-                    prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
-                    if ARGS.redeem and auto_redeem_counter < MAX_REDEEMS:
-                        # Start auto-redeem process
-                        with browserSetupv3(False, account.get('proxy', None)) as browser:
-                            print('[LOGIN]', 'Logging-in...')
-                            login(browser, account['username'], account['password'], account.get(
-                                'totpSecret', None))
-                            prGreen('[LOGIN] Logged-in successfully!')
-                            goToURL(browser, BASE_URL)
-                            waitUntilVisible(browser, By.ID, 'app-host', 30)
-                            redeemGoal(browser)
-                            browser.quit()
-                    if ARGS.telegram or ARGS.discord:
-                        LOGS[CURRENT_ACCOUNT]["Redeem goal title"] = redeem_goal_title
-                        LOGS[CURRENT_ACCOUNT]["Redeem goal price"] = redeem_goal_price
-            except:
-                with browserSetupv3(False, account.get('proxy', None)) as browser :
-                    print('[LOGIN]', 'Logging-in...')
-                    print('in Redeem Error...')
-                    login(browser, account['username'], account['password'], account.get(
-                        'totpSecret', None))
-                    prGreen('[LOGIN] Logged-in successfully !')
-                    STARTING_POINTS = getBingAccountPoints(browser)
-                    prGreen('[POINTS] You have ' + str(STARTING_POINTS) +
-                            ' points on your account !')
-                    goToURL(browser, BASE_URL)
-                    waitUntilVisible(browser, By.ID, 'app-host', 30)
-                    redeem_goal_title, redeem_goal_price = getRedeemGoal(browser)
-                    browser.quit()
-                if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
-                    prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
-                    if ARGS.redeem and auto_redeem_counter < MAX_REDEEMS:
-                        # Start auto-redeem process
-                        with browserSetupv3(False, account.get('proxy', None)) as browser:
-                            print('[LOGIN]', 'Logging-in...')
-                            login(browser, account['username'], account['password'], account.get(
-                                'totpSecret', None))
-                            prGreen('[LOGIN] Logged-in successfully!')
-                            goToURL(browser, BASE_URL)
-                            waitUntilVisible(browser, By.ID, 'app-host', 30)
-                            redeemGoal(browser)
-                            browser.quit()
-                    if ARGS.telegram or ARGS.discord:
-                        LOGS[CURRENT_ACCOUNT]["Redeem goal title"] = redeem_goal_title
-                        LOGS[CURRENT_ACCOUNT]["Redeem goal price"] = redeem_goal_price
+            # try:
+            #     if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
+            #         prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
+            #         if ARGS.redeem and auto_redeem_counter < MAX_REDEEMS:
+            #             # Start auto-redeem process
+            #             with browserSetupv3(False, account.get('proxy', None)) as browser:
+            #                 print('[LOGIN]', 'Logging-in...')
+            #                 login(browser, account['username'], account['password'], account.get(
+            #                     'totpSecret', None))
+            #                 prGreen('[LOGIN] Logged-in successfully!')
+            #                 goToURL(browser, BASE_URL)
+            #                 waitUntilVisible(browser, By.ID, 'app-host', 30)
+            #                 redeemGoal(browser)
+            #                 browser.quit()
+            #         if ARGS.telegram or ARGS.discord:
+            #             LOGS[CURRENT_ACCOUNT]["Redeem goal title"] = redeem_goal_title
+            #             LOGS[CURRENT_ACCOUNT]["Redeem goal price"] = redeem_goal_price
+            # except:
+            #     with browserSetupv3(False, account.get('proxy', None)) as browser :
+            #         print('[LOGIN]', 'Logging-in...')
+            #         print('in Redeem Error...')
+            #         login(browser, account['username'], account['password'], account.get(
+            #             'totpSecret', None))
+            #         prGreen('[LOGIN] Logged-in successfully !')
+            #         STARTING_POINTS = getBingAccountPoints(browser)
+            #         prGreen('[POINTS] You have ' + str(STARTING_POINTS) +
+            #                 ' points on your account !')
+            #         goToURL(browser, BASE_URL)
+            #         waitUntilVisible(browser, By.ID, 'app-host', 30)
+            #         redeem_goal_title, redeem_goal_price = getRedeemGoal(browser)
+            #         browser.quit()
+            #     if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
+            #         prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
+            #         if ARGS.redeem and auto_redeem_counter < MAX_REDEEMS:
+            #             # Start auto-redeem process
+            #             with browserSetupv3(False, account.get('proxy', None)) as browser:
+            #                 print('[LOGIN]', 'Logging-in...')
+            #                 login(browser, account['username'], account['password'], account.get(
+            #                     'totpSecret', None))
+            #                 prGreen('[LOGIN] Logged-in successfully!')
+            #                 goToURL(browser, BASE_URL)
+            #                 waitUntilVisible(browser, By.ID, 'app-host', 30)
+            #                 redeemGoal(browser)
+            #                 browser.quit()
+            #         if ARGS.telegram or ARGS.discord:
+            #             LOGS[CURRENT_ACCOUNT]["Redeem goal title"] = redeem_goal_title
+            #             LOGS[CURRENT_ACCOUNT]["Redeem goal price"] = redeem_goal_price
             finishedAccount()
             cleanLogs()
             updateLogs()
