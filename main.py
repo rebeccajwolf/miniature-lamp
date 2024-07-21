@@ -392,6 +392,7 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
 
     options.headless = True if ARGS.headless and ARGS.account_browser is None else False
     options.add_argument("--log-level=3")
+    options.add_argument("--incognito")
     options.add_argument("--blink-settings=imagesEnabled=false")
     options.add_argument("--ignore-certificate-errors")
     options.add_argument("--ignore-certificate-errors-spki-list")
@@ -839,6 +840,7 @@ def getBingInfo(browser: WebDriver):
                 cookies=cookies,
             )
             if response.status_code == requests.codes.ok:
+                print(response.json())
                 return response.json()
         except Exception as exc:
             displayError(exc)
