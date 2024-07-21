@@ -387,7 +387,6 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
 
     options.headless = True if ARGS.headless and ARGS.account_browser is None else False
     options.add_argument("--log-level=3")
-    options.add_argument("--incognito")
     options.add_argument("--blink-settings=imagesEnabled=false")
     options.add_argument("--ignore-certificate-errors")
     options.add_argument("--ignore-certificate-errors-spki-list")
@@ -404,7 +403,7 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
         browser = edgedriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()), options=options)
     else:
         # browser = uc.Chrome(driver_executable_path="chromedriver", options=options, use_subprocess=False, user_data_dir= user_data if ARGS.session or ARGS.account_browser else None, no_sandbox=False)
-        browser = uc.Chrome(driver_executable_path="chromedriver", options=options, user_data_dir= user_data.as_posix() if ARGS.session or ARGS.account_browser else None, no_sandbox=False)
+        browser = uc.Chrome(driver_executable_path="chromedriver", options=options, use_subprocess=False, user_data_dir= user_data.as_posix() if ARGS.session or ARGS.account_browser else None, no_sandbox=False)
     return browser
 
 @retry_on_500_errors
@@ -3469,6 +3468,7 @@ def farmer():
                     updateLogs()
                     ERROR = False
                     browser.quit()
+                    kill_process_by_name("chromium")
 
             if MOBILE:
                 with browserSetupv3(True, account.get('proxy', None)) as browser:
@@ -3488,6 +3488,7 @@ def farmer():
                         POINTS_COUNTER = getBingAccountPoints(browser)
                         prGreen('\n[BING] Finished Mobile Bing searches !')
                     browser.quit()
+                    kill_process_by_name("chromium")
             # try:
             #     if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
             #         prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
@@ -3543,6 +3544,7 @@ def farmer():
         prRed('[ERROR] Time out raised.\n')
         ERROR = True
         browser.quit()
+        kill_process_by_name("chromium")
         farmer()
 
     except SessionNotCreatedException:
@@ -3648,6 +3650,7 @@ def farmer():
         ERROR = True
         if browser is not None:
             browser.quit()
+        kill_process_by_name("chromium")
         checkInternetConnection()
         farmer()
     else:
@@ -3748,6 +3751,7 @@ def main():
 
 def kill_process_by_name(PROCNAME:str):
     for proc in psutil.process_iter(attrs=['pid', 'name']):
+        print(proc.info['name'])
         if PROCNAME in proc.info['name']:
             proc.kill()
 
