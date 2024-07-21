@@ -682,19 +682,21 @@ def checkBingLogin(browser: WebDriver):
         goToURL(browser,
             "https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F"
         )
-        while True:
-            currentUrl = urllib.parse.urlparse(browser.current_url)
-            # prBlue(f'Current Bing URL == {currentUrl}')
-            if currentUrl.hostname == "www.bing.com" and currentUrl.path == "/":
-                # prBlue("in Current URL")
-                time.sleep(3)
-                tryDismissBingCookieBanner(browser)
-                with contextlib.suppress(Exception):
-                    if checkIfBingLogin(browser):
-                        # prBlue("Checking if Bing Login")
-                        return
-            time.sleep(1)
-            # print("Bing Refreshing....")
+        time.sleep(calculateSleep(15))
+        if not checkIfBingLogin(browser):
+            while True:
+                currentUrl = urllib.parse.urlparse(browser.current_url)
+                # prBlue(f'Current Bing URL == {currentUrl}')
+                if currentUrl.hostname == "www.bing.com" and currentUrl.path == "/":
+                    # prBlue("in Current URL")
+                    time.sleep(3)
+                    tryDismissBingCookieBanner(browser)
+                    with contextlib.suppress(Exception):
+                        if checkIfBingLogin(browser):
+                            # prBlue("Checking if Bing Login")
+                            return
+                time.sleep(1)
+                # print("Bing Refreshing....")
 
 
 def handleUnusualActivity(browser: WebDriver, isMobile: bool = False):
@@ -771,7 +773,6 @@ def getBingInfo(browser: WebDriver):
                 cookies=cookies,
             )
             if response.status_code == requests.codes.ok:
-                print(response.json())
                 return response.json()
         except Exception as exc:
             displayError(exc)
@@ -3468,7 +3469,7 @@ def farmer():
                     updateLogs()
                     ERROR = False
                     browser.quit()
-                    kill_process_by_name("chromium")
+                    kill_process_by_name(["chrome", "chromedriver"])
 
             if MOBILE:
                 with browserSetupv3(True, account.get('proxy', None)) as browser:
@@ -3488,7 +3489,7 @@ def farmer():
                         POINTS_COUNTER = getBingAccountPoints(browser)
                         prGreen('\n[BING] Finished Mobile Bing searches !')
                     browser.quit()
-                    kill_process_by_name("chromium")
+                    kill_process_by_name(["chrome", "chromedriver"])
             # try:
             #     if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
             #         prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
@@ -3544,7 +3545,7 @@ def farmer():
         prRed('[ERROR] Time out raised.\n')
         ERROR = True
         browser.quit()
-        kill_process_by_name("chromium")
+        kill_process_by_name(["chrome", "chromedriver"])
         farmer()
 
     except SessionNotCreatedException:
@@ -3650,7 +3651,7 @@ def farmer():
         ERROR = True
         if browser is not None:
             browser.quit()
-        kill_process_by_name("chromium")
+        kill_process_by_name(["chrome", "chromedriver"])
         checkInternetConnection()
         farmer()
     else:
@@ -3682,6 +3683,7 @@ def main():
         if browser is not None:
             browser.close()
             browser.quit()
+        kill_process_by_name(["chrome", "chromedriver"])
     # run_at = None
     # if ARGS.start_at:
     #     run_at = ARGS.start_at[0]
@@ -3749,11 +3751,17 @@ def main():
         elif ARGS.on_finish == "exit":
             return
 
-def kill_process_by_name(PROCNAME:str):
+def kill_process_by_name(PROCNAME:list):
     for proc in psutil.process_iter(attrs=['pid', 'name']):
-        print(proc.info['name'])
-        if PROCNAME in proc.info['name']:
-            proc.kill()
+        print(f'Processes Before Kill{proc}')
+
+    for proc in psutil.process_iter(attrs=['pid', 'name']):
+        for prockill in PROCNAME:
+            if prockill in proc.info['name']:
+                proc.kill()
+    
+    for proc in psutil.process_iter(attrs=['pid', 'name']):
+        print(f'Processes After Kill{proc}')
 
 def get_version():
     """Get version from version.json"""
