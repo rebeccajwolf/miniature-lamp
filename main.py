@@ -3758,6 +3758,8 @@ def kill_process_by_name(PROCNAME:list):
     for proc in psutil.process_iter(attrs=['pid', 'name']):
         for prockill in PROCNAME:
             if prockill in proc.info['name']:
+                for child in psutil.Process(proc.info['pid']).children(recursive=True):
+                    child.kill()
                 proc.kill()
     
     for proc in psutil.process_iter(attrs=['pid', 'name']):
