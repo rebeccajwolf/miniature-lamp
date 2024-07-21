@@ -1241,7 +1241,8 @@ def locateQuestCard(browser: WebDriver, activity: dict) -> WebElement:
     
 def openDailySetActivity(browser: WebDriver, cardId: int):
         # browser.find_element(By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a').click()
-        # waitUntilClickable(browser, By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a', 15)
+        waitUntilClickable(browser, By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId+1}]/div/card-content/mee-rewards-daily-set-item-content/div/a', 15)
+        browser.execute_script(f'document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].scrollIntoView(true)')
         print(browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].innerHTML'))
         card = browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}]')
         card.click()
