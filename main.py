@@ -1522,8 +1522,8 @@ def completeDailySet(browser: WebDriver):
             # cardNumber = int(activity['offerId'][-1:])
             cardNumber = i
             print(f'Card Name: {activity["title"]}')
-            open_in_new_tab(browser, url = activity["destinationUrl"])
-            # openDailySetActivity(browser, cardId=cardNumber)
+            # open_in_new_tab(browser, url = activity["destinationUrl"])
+            openDailySetActivity(browser, cardId=cardNumber)
             i += 1
             if activity['promotionType'] == "urlreward":
                 if "poll" in activity['title']:
