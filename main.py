@@ -1239,11 +1239,12 @@ def locateQuestCard(browser: WebDriver, activity: dict) -> WebElement:
     
 def openDailySetActivity(browser: WebDriver, cardId: int):
         # browser.find_element(By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a').click()
-        waitUntilClickable(browser, By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a', 15)
+        # waitUntilClickable(browser, By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a', 15)
         card = browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}]')
         card.click()
         time.sleep(2)
         goto_latest_window(browser, time_to_wait=8)
+        print(f'Card Window URL: {browser.current_url}')
         
 def openMorePromotionsActivity(browser: WebDriver, cardId: int):
         # print(f'Current URL Before Clicking: {browser.current_url}')
@@ -3758,9 +3759,11 @@ def kill_process_by_name(PROCNAME:list):
         for proc in psutil.process_iter(attrs=['pid', 'name']):
             for prockill in PROCNAME:
                 if prockill in proc.info['name']:
-                    for child in psutil.Process(proc.info['pid']).children(recursive=True):
+                    parent = psutil.Process(proc.info['pid'])
+                    children = parent.children(recursive=True)
+                    children.append(parent)
+                    for child in children:
                         child.kill()
-                    proc.kill()
     except psutil.NoSuchProcess:
         pass
     
