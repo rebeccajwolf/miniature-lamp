@@ -3754,13 +3754,15 @@ def main():
 def kill_process_by_name(PROCNAME:list):
     for proc in psutil.process_iter(attrs=['pid', 'name']):
         print(f'Processes Before Kill{proc}')
-
-    for proc in psutil.process_iter(attrs=['pid', 'name']):
-        for prockill in PROCNAME:
-            if prockill in proc.info['name']:
-                for child in psutil.Process(proc.info['pid']).children(recursive=True):
-                    child.kill()
-                proc.kill()
+    try:
+        for proc in psutil.process_iter(attrs=['pid', 'name']):
+            for prockill in PROCNAME:
+                if prockill in proc.info['name']:
+                    for child in psutil.Process(proc.info['pid']).children(recursive=True):
+                        child.kill()
+                    proc.kill()
+    except psutil.NoSuchProcess:
+        pass
     
     for proc in psutil.process_iter(attrs=['pid', 'name']):
         print(f'Processes After Kill{proc}')
