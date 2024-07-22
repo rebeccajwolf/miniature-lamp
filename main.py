@@ -691,7 +691,7 @@ def checkBingLogin(browser: WebDriver):
         if not checkIfBingLogin(browser):
             while True:
                 goToURL(browser, 'https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F')
-                time.sleep(calculateSleep(7))
+                time.sleep(calculateSleep(15))
                 currentUrl = urllib.parse.urlparse(browser.current_url)
                 # prBlue(f'Current Bing URL == {currentUrl}')
                 if currentUrl.hostname == "www.bing.com" and currentUrl.path == "/":
