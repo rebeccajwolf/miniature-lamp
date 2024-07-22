@@ -1241,14 +1241,15 @@ def locateQuestCard(browser: WebDriver, activity: dict) -> WebElement:
     
 def openDailySetActivity(browser: WebDriver, cardId: int):
         # browser.find_element(By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId}]/div/card-content/mee-rewards-daily-set-item-content/div/a').click()
-        try:
-            waitUntilVisible(browser, By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId+1}]/div/card-content/mee-rewards-daily-set-item-content/div/a', 15)
-        except:
-            print("exception in clicking daily")
-            pass
-        browser.execute_script(f'document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].scrollIntoView(true)')
-        print(browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].innerHTML'))
-        card = browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}]')
+        # try:
+        #     waitUntilVisible(browser, By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId+1}]/div/card-content/mee-rewards-daily-set-item-content/div/a', 15)
+        # except:
+        #     print("exception in clicking daily")
+        #     pass
+        waitUntilVisible(browser, By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId+1}]/div/card-content/mee-rewards-daily-set-item-content/div/a', 15)
+        browser.execute_script(f'document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].getElementsByTagName("mee-rewards-daily-set-item-content")[0].children[0].children[0].scrollIntoView(true)')
+        print(browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].getElementsByTagName("mee-rewards-daily-set-item-content")[0].children[0].children[0].innerText'))
+        card = browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].getElementsByTagName("mee-rewards-daily-set-item-content")[0].children[0].children[0]')
         card.click()
         time.sleep(2)
         goto_latest_window(browser, time_to_wait=8)
@@ -3761,8 +3762,6 @@ def main():
             return
 
 def kill_process_by_name(PROCNAME:list):
-    for proc in psutil.process_iter(attrs=['pid', 'name']):
-        print(f'Processes Before Kill{proc}')
     try:
         for proc in psutil.process_iter(attrs=['pid', 'name']):
             for prockill in PROCNAME:
@@ -3774,9 +3773,6 @@ def kill_process_by_name(PROCNAME:list):
                         child.kill()
     except psutil.NoSuchProcess:
         pass
-    
-    for proc in psutil.process_iter(attrs=['pid', 'name']):
-        print(f'Processes After Kill{proc}')
 
 def get_version():
     """Get version from version.json"""
