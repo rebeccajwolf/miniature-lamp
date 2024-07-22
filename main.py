@@ -3453,14 +3453,14 @@ def farmer():
                     #         setRedeemGoal(browser, goal)
                     #         redeem_goal_title, redeem_goal_price = getRedeemGoal(
                     #             browser)
-                    # if not LOGS[CURRENT_ACCOUNT]['Read to Earn']:
-                    #     completeReadToEarn(browser, STARTING_POINTS)
+                    if not LOGS[CURRENT_ACCOUNT]['Read to Earn']:
+                        completeReadToEarn(browser, STARTING_POINTS)
                     if not LOGS[CURRENT_ACCOUNT]['Daily']:
                         completeDailySet(browser)
-                    # if not LOGS[CURRENT_ACCOUNT]['Punch cards']:
-                    #     completePunchCards(browser)
-                    # if not LOGS[CURRENT_ACCOUNT]['More promotions']:
-                    #     completeMorePromotions(browser)
+                    if not LOGS[CURRENT_ACCOUNT]['Punch cards']:
+                        completePunchCards(browser)
+                    if not LOGS[CURRENT_ACCOUNT]['More promotions']:
+                        completeMorePromotions(browser)
                     POINTS_COUNTER = getBingAccountPoints(browser)
                     # if not ARGS.skip_shopping and not LOGS[CURRENT_ACCOUNT]['MSN shopping game']:
                     #     finished = False
@@ -3471,38 +3471,39 @@ def farmer():
                     #     if not finished:
                     #         finished = completeMSNShoppingGame(browser, account['username'])
                     #     REDEEMABLE = finished
-                    # remainingSearches, remainingSearchesM = getRemainingSearches(browser, separateSearches=True)
-                    # MOBILE = bool(remainingSearchesM)
-                    # if remainingSearches != 0:
-                    #     print('[BING]', 'Starting Desktop and Edge Bing searches...')
-                    #     Searches(browser, False).bingSearches()
-                    #     POINTS_COUNTER = getBingAccountPoints(browser)
-                    #     prGreen('\n[BING] Finished Desktop and Edge Bing searches !')
-                    # LOGS[CURRENT_ACCOUNT]['PC searches'] = True
-                    # updateLogs()
-                    # ERROR = False
-                    browser.quit()
-                    kill_process_by_name(["chrome", "chromedriver"])
+                    remainingSearches, remainingSearchesM = getRemainingSearches(browser, separateSearches=True)
+                    MOBILE = bool(remainingSearchesM)
+                    if remainingSearches != 0:
+                        print('[BING]', 'Starting Desktop and Edge Bing searches...')
+                        Searches(browser, False).bingSearches()
+                        POINTS_COUNTER = getBingAccountPoints(browser)
+                        prGreen('\n[BING] Finished Desktop and Edge Bing searches !')
+                    LOGS[CURRENT_ACCOUNT]['PC searches'] = True
+                    updateLogs()
+                    ERROR = False
+                browser.close()
+                browser.quit()
+                kill_process_by_name(["chrome", "chromedriver"])
 
-            # if MOBILE:
-            #     with browserSetupv3(True, account.get('proxy', None)) as browser:
-            #         print('[LOGIN]', 'Logging-in mobile...')
-            #         login(browser, account['username'], account['password'], account.get(
-            #             'totpSecret', None), True)
-            #         prGreen('[LOGIN] Logged-in successfully !')
-            #         if LOGS[account['username']]['PC searches'] and ERROR:
-            #             STARTING_POINTS = POINTS_COUNTER
-            #             goToURL(browser, BASE_URL)
-            #             waitUntilVisible(browser, By.ID, 'app-host', 30)
-            #             redeem_goal_title, redeem_goal_price = getRedeemGoal(browser)
-            #             remainingSearches, remainingSearchesM = getRemainingSearches(browser, separateSearches=True)
-            #         if remainingSearchesM != 0:
-            #             print('[BING]', 'Starting Mobile Bing searches...')
-            #             Searches(browser, True).bingSearches()
-            #             POINTS_COUNTER = getBingAccountPoints(browser)
-            #             prGreen('\n[BING] Finished Mobile Bing searches !')
-            #         browser.quit()
-            #         kill_process_by_name(["chrome", "chromedriver"])
+            if MOBILE:
+                with browserSetupv3(True, account.get('proxy', None)) as browser:
+                    print('[LOGIN]', 'Logging-in mobile...')
+                    login(browser, account['username'], account['password'], account.get(
+                        'totpSecret', None), True)
+                    prGreen('[LOGIN] Logged-in successfully !')
+                    if LOGS[account['username']]['PC searches'] and ERROR:
+                        STARTING_POINTS = POINTS_COUNTER
+                        goToURL(browser, BASE_URL)
+                        waitUntilVisible(browser, By.ID, 'app-host', 30)
+                        redeem_goal_title, redeem_goal_price = getRedeemGoal(browser)
+                        remainingSearches, remainingSearchesM = getRemainingSearches(browser, separateSearches=True)
+                    if remainingSearchesM != 0:
+                        print('[BING]', 'Starting Mobile Bing searches...')
+                        Searches(browser, True).bingSearches()
+                        POINTS_COUNTER = getBingAccountPoints(browser)
+                        prGreen('\n[BING] Finished Mobile Bing searches !')
+                browser.quit()
+                kill_process_by_name(["chrome", "chromedriver"])
             # try:
             #     if redeem_goal_title != "" and redeem_goal_price <= POINTS_COUNTER:
             #         prGreen(f"[POINTS] Account ready to redeem {redeem_goal_title} for {redeem_goal_price} points.")
@@ -3668,9 +3669,9 @@ def farmer():
         checkInternetConnection()
         farmer()
     else:
-        # if ARGS.telegram or ARGS.discord:
-        #     message = createMessage()
-        #     sendReportToMessenger(message)
+        if ARGS.telegram or ARGS.discord:
+            message = createMessage()
+            sendReportToMessenger(message)
         FINISHED_ACCOUNTS.clear()
 
 
