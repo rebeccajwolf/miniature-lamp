@@ -1251,14 +1251,12 @@ def openDailySetActivity(browser: WebDriver, cardId: int):
         # except:
         #     print("exception in clicking daily")
         #     pass
-        waitUntilVisible(browser, By.XPATH, f'//*[@id="daily-sets"]/mee-card-group[1]/div/mee-card[{cardId+1}]/div/card-content/mee-rewards-daily-set-item-content/div/a', 15)
-        browser.execute_script(f'document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].getElementsByTagName("mee-rewards-daily-set-item-content")[0].children[0].children[0].scrollIntoView(true)')
-        print(browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].getElementsByTagName("mee-rewards-daily-set-item-content")[0].children[0].children[0].innerText'))
-        card = browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].getElementsByTagName("mee-rewards-daily-set-item-content")[0].children[0].children[0]')
+        # browser.execute_script(f'document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].scrollIntoView(true)')
+        # print(browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].innerText'))
+        card = browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}]')
         card.click()
         time.sleep(2)
         goto_latest_window(browser, time_to_wait=8)
-        print(f'Card Window URL: {browser.current_url}')
         
 def openMorePromotionsActivity(browser: WebDriver, cardId: int):
         # print(f'Current URL Before Clicking: {browser.current_url}')
@@ -1520,7 +1518,6 @@ def completeDailySet(browser: WebDriver):
         time.sleep(2)
 
     print('[DAILY SET]', 'Trying to complete the Daily Set...')
-    browser.execute_script("window.scrollTo(0, 1080)")
     d = getDashboardData(browser)
     error = False
     todayDate = datetime.today().strftime('%m/%d/%Y')
@@ -1537,6 +1534,7 @@ def completeDailySet(browser: WebDriver):
             # cardNumber = int(activity['offerId'][-1:])
             cardNumber = i
             print(f'Card Name: {activity["title"]}')
+            browser.execute_script("window.scrollTo(0, 1080)")
             # open_in_new_tab(browser, url = activity["destinationUrl"])
             openDailySetActivity(browser, cardId=cardNumber)
             i += 1
