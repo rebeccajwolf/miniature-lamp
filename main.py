@@ -1798,12 +1798,15 @@ def completeMorePromotions(browser: WebDriver):
                 for _ in range(3):
                     html.send_keys(Keys.END)
                     html.send_keys(Keys.HOME)
-                time.sleep(1.5)
-                searchbar = browser.find_element(By.XPATH, '//*[@id="sb_form_q"]')
-                searchbar.click()
-                time.sleep(1.5)
-                browser.find_element(By.ID, "b_header").click()
-                time.sleep(1.5)
+                try:
+                    time.sleep(1.5)
+                    searchbar = browser.find_element(By.XPATH, '//*[@id="sb_form_q"]')
+                    searchbar.click()
+                    time.sleep(1.5)
+                    browser.find_element(By.ID, "b_header").click()
+                    time.sleep(1.5)
+                except:
+                    pass
                 browser.refresh()
                 time.sleep(3.5)
             close_all_but_main(browser)
