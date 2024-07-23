@@ -1522,10 +1522,13 @@ def completeDailySet(browser: WebDriver):
     print('[DAILY SET]', 'Trying to complete the Daily Set...')
     d = getDashboardData(browser)
     time.sleep(2)
-    if isElementExists(browser, By.CLASS_NAME, "dashboardPopUpModalCloseCross"):
-        time.sleep(2)
-        browser.find_element(By.CLASS_NAME, "dashboardPopUpModalCloseCross").click()
-        time.sleep(3)
+    try:
+        if isElementExists(browser, By.CLASS_NAME, "dashboardPopUpModalCloseCross"):
+            time.sleep(2)
+            browser.find_element(By.CLASS_NAME, "dashboardPopUpModalCloseCross").click()
+            time.sleep(3)
+    except:
+        pass
     error = False
     todayDate = datetime.today().strftime('%m/%d/%Y')
     todayPack = []
@@ -1690,10 +1693,13 @@ def completePunchCards(browser: WebDriver):
     print('[PUNCH CARDS]', 'Trying to complete the Punch Cards...')
     punchCards = getDashboardData(browser)['punchCards']
     time.sleep(2)
-    if isElementExists(browser, By.CLASS_NAME, "dashboardPopUpModalCloseCross"):
-        time.sleep(2)
-        browser.find_element(By.CLASS_NAME, "dashboardPopUpModalCloseCross").click()
-        time.sleep(3)
+    try:
+        if isElementExists(browser, By.CLASS_NAME, "dashboardPopUpModalCloseCross"):
+            time.sleep(2)
+            browser.find_element(By.CLASS_NAME, "dashboardPopUpModalCloseCross").click()
+            time.sleep(3)
+    except:
+        pass
     for punchCard in punchCards:
         try:
             if (
@@ -1917,10 +1923,13 @@ def completeMorePromotions(browser: WebDriver):
     print('[MORE PROMO]', 'Trying to complete More Promotions...')
     morePromotions: list[dict] = getDashboardData(browser)['morePromotions']
     time.sleep(2)
-    if isElementExists(browser, By.CLASS_NAME, "dashboardPopUpModalCloseCross"):
-        time.sleep(2)
-        browser.find_element(By.CLASS_NAME, "dashboardPopUpModalCloseCross").click()
-        time.sleep(3)
+    try:
+        if isElementExists(browser, By.CLASS_NAME, "dashboardPopUpModalCloseCross"):
+            time.sleep(2)
+            browser.find_element(By.CLASS_NAME, "dashboardPopUpModalCloseCross").click()
+            time.sleep(3)
+    except:
+        pass
     # i = 0
     for promotion in morePromotions:
         try:
