@@ -409,7 +409,7 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
 @retry_on_500_errors
 def goToURL(browser: WebDriver, url: str):
     browser.get(url)
-    browser.set_page_load_timeout(80)
+    time.sleep(15)
 
 
 def displayError(exc: Exception):
@@ -1603,7 +1603,10 @@ def completeDailySet(browser: WebDriver):
                                 print(
                                     '[DAILY SET]', 'Completing quiz of card ' + str(cardNumber))
                                 completeDailySetVariableActivity()
-            break
+            if j == 1:
+                break
+            resetTabs(browser)
+            i = 0
         except Exception as exc:
             displayError(exc)
             if j == 2:
