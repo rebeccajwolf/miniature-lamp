@@ -1781,6 +1781,7 @@ def completeMorePromotions(browser: WebDriver):
                 waitUntilClickable(browser, By.XPATH, '//*[@id="sb_form_q"]', time_to_wait=20)
                 searchbar = browser.find_element(By.XPATH, '//*[@id="sb_form_q"]')
                 searchbar.click()
+                searchbar.clear()
                 searchbar.send_keys(word_to_search)
                 searchbar.submit()
                 time.sleep(7)
