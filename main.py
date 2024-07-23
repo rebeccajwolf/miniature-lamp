@@ -408,14 +408,8 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
 
 @retry_on_500_errors
 def goToURL(browser: WebDriver, url: str):
-    for _ in range(5):
-        try:
-            browser.get(url)
-            browser.set_page_load_timeout(70)
-            return
-        except:
-            time.sleep(3.5)
-            continue
+    browser.get(url)
+    browser.set_page_load_timeout(80)
 
 
 def displayError(exc: Exception):
