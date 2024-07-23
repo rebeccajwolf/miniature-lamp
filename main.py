@@ -411,10 +411,10 @@ def goToURL(browser: WebDriver, url: str):
     for _ in range(5):
         try:
             browser.get(url)
-            browser.set_page_load_timeout(30)
+            browser.set_page_load_timeout(70)
             return
         except:
-            browser.refresh()
+            time.sleep(3.5)
             continue
 
 
