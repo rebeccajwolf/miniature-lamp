@@ -1253,10 +1253,19 @@ def openDailySetActivity(browser: WebDriver, cardId: int):
         #     pass
         # browser.execute_script(f'document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].scrollIntoView(true)')
         # print(browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}].innerText'))
-        card = browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}]')
-        card.click()
-        time.sleep(3)
-        goto_latest_window(browser, time_to_wait=15)
+        for _ in range(2):
+            try:
+                card = browser.execute_script(f'return document.querySelector("mee-rewards-daily-set-section").children[0].querySelector("mee-card-group").children[0].children[{cardId}]')
+                card.click()
+                time.sleep(3)
+            except:
+                browser.refresh()
+                time.sleep(5)
+                browser.execute_script("window.scrollTo(0, 1080)")
+                time.sleep(2)
+                continue
+            else:
+                goto_latest_window(browser, time_to_wait=15)
         # print(f'Current URL After Opening: {browser.current_url}')
         
 def openMorePromotionsActivity(browser: WebDriver, cardId: int):
@@ -1534,78 +1543,79 @@ def completeDailySet(browser: WebDriver):
     todayPack = []
     i = 0
     for j in range(2):
-        for date_, data in d['dailySetPromotions'].items():
-            if date_ == todayDate:
-                todayPack = data
-        for activity in todayPack:
-            try:
-                if activity['complete'] is not False:
+        try:
+            for date_, data in d['dailySetPromotions'].items():
+                if date_ == todayDate:
+                    todayPack = data
+            for activity in todayPack:
+                
+                    if activity['complete'] is not False:
+                        i += 1
+                        continue
+                    # cardNumber = int(activity['offerId'][-1:])
+                    cardNumber = i
+                    print(f'Card Name: {activity["title"]}')
+                    browser.execute_script("window.scrollTo(0, 1080)")
+                    # open_in_new_tab(browser, url = activity["destinationUrl"])
+                    openDailySetActivity(browser, cardId=cardNumber)
                     i += 1
-                    continue
-                # cardNumber = int(activity['offerId'][-1:])
-                cardNumber = i
-                print(f'Card Name: {activity["title"]}')
-                browser.execute_script("window.scrollTo(0, 1080)")
-                # open_in_new_tab(browser, url = activity["destinationUrl"])
-                openDailySetActivity(browser, cardId=cardNumber)
-                i += 1
-                if activity['promotionType'] == "urlreward":
-                    if "poll" in activity['title']:
-                        searchUrl = urllib.parse.unquote(
-                            urllib.parse.parse_qs(urllib.parse.urlparse(activity['destinationUrl']).query)['ru'][0])
-                        searchUrlQueries = urllib.parse.parse_qs(
-                            urllib.parse.urlparse(searchUrl).query)
-                        filters = {}
-                        for filter in searchUrlQueries['filters'][0].split(" "):
-                            filter = filter.split(':', 1)
-                            filters[filter[0]] = filter[1]
-                        if "PollScenarioId" in filters:
+                    if activity['promotionType'] == "urlreward":
+                        if "poll" in activity['title']:
+                            searchUrl = urllib.parse.unquote(
+                                urllib.parse.parse_qs(urllib.parse.urlparse(activity['destinationUrl']).query)['ru'][0])
+                            searchUrlQueries = urllib.parse.parse_qs(
+                                urllib.parse.urlparse(searchUrl).query)
+                            filters = {}
+                            for filter in searchUrlQueries['filters'][0].split(" "):
+                                filter = filter.split(':', 1)
+                                filters[filter[0]] = filter[1]
+                            if "PollScenarioId" in filters:
+                                print(
+                                    '[DAILY SET]', 'Completing poll of card ' + str(cardNumber))
+                                completeDailySetSurvey()
+                        elif "weekly+quiz" in activity["destinationUrl"] or "homepage+quiz" in activity["destinationUrl"]:
                             print(
-                                '[DAILY SET]', 'Completing poll of card ' + str(cardNumber))
-                            completeDailySetSurvey()
-                    elif "weekly+quiz" in activity["destinationUrl"] or "homepage+quiz" in activity["destinationUrl"]:
-                        print(
-                                '[DAILY SET]', 'Completing quiz of card ' + str(cardNumber))
-                        completeDailySetVariableActivity()
-                    else:
-                        print('[DAILY SET]',
-                                'Completing search of card ' + str(cardNumber))
-                        completeDailySetSearch()
-                if activity['promotionType'] == "quiz":
-                    if activity['pointProgressMax'] == 50 and activity['pointProgress'] == 0:
-                        print(
-                            '[DAILY SET]', 'Completing This or That of card ' + str(cardNumber))
-                        completeDailySetThisOrThat()
-                    elif (activity['pointProgressMax'] == 40 or activity['pointProgressMax'] == 30) and activity['pointProgress'] == 0:
-                        print("TRYING 30 or 40 QUIZ...")
-                        print('[DAILY SET]',
-                                'Completing quiz of card ' + str(cardNumber))
-                        completeDailySetQuiz()
-                    elif activity['pointProgressMax'] == 10 and activity['pointProgress'] == 0:
-                        searchUrl = urllib.parse.unquote(
-                            urllib.parse.parse_qs(urllib.parse.urlparse(activity['destinationUrl']).query)['ru'][0])
-                        searchUrlQueries = urllib.parse.parse_qs(
-                            urllib.parse.urlparse(searchUrl).query)
-                        filters = {}
-                        for filter in searchUrlQueries['filters'][0].split(" "):
-                            filter = filter.split(':', 1)
-                            filters[filter[0]] = filter[1]
-                        if "PollScenarioId" in filters:
-                            print(
-                                '[DAILY SET]', 'Completing poll of card ' + str(cardNumber))
-                            completeDailySetSurvey()
-                        else:
-                            print(
-                                '[DAILY SET]', 'Completing quiz of card ' + str(cardNumber))
+                                    '[DAILY SET]', 'Completing quiz of card ' + str(cardNumber))
                             completeDailySetVariableActivity()
-                    break
-            except Exception as exc:
-                displayError(exc)
-                if j == 2:
-                    error = True
-                resetTabs(browser)
-                i = 0
-                continue
+                        else:
+                            print('[DAILY SET]',
+                                    'Completing search of card ' + str(cardNumber))
+                            completeDailySetSearch()
+                    if activity['promotionType'] == "quiz":
+                        if activity['pointProgressMax'] == 50 and activity['pointProgress'] == 0:
+                            print(
+                                '[DAILY SET]', 'Completing This or That of card ' + str(cardNumber))
+                            completeDailySetThisOrThat()
+                        elif (activity['pointProgressMax'] == 40 or activity['pointProgressMax'] == 30) and activity['pointProgress'] == 0:
+                            print("TRYING 30 or 40 QUIZ...")
+                            print('[DAILY SET]',
+                                    'Completing quiz of card ' + str(cardNumber))
+                            completeDailySetQuiz()
+                        elif activity['pointProgressMax'] == 10 and activity['pointProgress'] == 0:
+                            searchUrl = urllib.parse.unquote(
+                                urllib.parse.parse_qs(urllib.parse.urlparse(activity['destinationUrl']).query)['ru'][0])
+                            searchUrlQueries = urllib.parse.parse_qs(
+                                urllib.parse.urlparse(searchUrl).query)
+                            filters = {}
+                            for filter in searchUrlQueries['filters'][0].split(" "):
+                                filter = filter.split(':', 1)
+                                filters[filter[0]] = filter[1]
+                            if "PollScenarioId" in filters:
+                                print(
+                                    '[DAILY SET]', 'Completing poll of card ' + str(cardNumber))
+                                completeDailySetSurvey()
+                            else:
+                                print(
+                                    '[DAILY SET]', 'Completing quiz of card ' + str(cardNumber))
+                                completeDailySetVariableActivity()
+            break
+        except Exception as exc:
+            displayError(exc)
+            if j == 2:
+                error = True
+            resetTabs(browser)
+            i = 0
+            continue
     if not error:
         prGreen("[DAILY SET] Completed the Daily Set successfully !")
     else:
