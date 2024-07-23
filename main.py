@@ -408,12 +408,13 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
 
 @retry_on_500_errors
 def goToURL(browser: WebDriver, url: str):
-    while True:
+    for _ in range(5):
         try:
             browser.get(url)
-            browser.set_page_load_timeout(60)
+            browser.set_page_load_timeout(30)
             return
         except(TimeoutException):
+            browser.refresh()
             continue
 
 
@@ -691,7 +692,7 @@ def checkBingLogin(browser: WebDriver):
         if not checkIfBingLogin(browser):
             while True:
                 goToURL(browser, 'https://www.bing.com/fd/auth/signin?action=interactive&provider=windows_live_id&return_url=https%3A%2F%2Fwww.bing.com%2F')
-                time.sleep(calculateSleep(15))
+                time.sleep(calculateSleep(5))
                 currentUrl = urllib.parse.urlparse(browser.current_url)
                 # prBlue(f'Current Bing URL == {currentUrl}')
                 if currentUrl.hostname == "www.bing.com" and currentUrl.path == "/":
@@ -703,7 +704,7 @@ def checkBingLogin(browser: WebDriver):
                             # prBlue("Checking if Bing Login")
                             return
                 time.sleep(1)
-                # print("Bing Refreshing....")
+                print("Bing Refreshing....")
 
 
 def handleUnusualActivity(browser: WebDriver, isMobile: bool = False):
