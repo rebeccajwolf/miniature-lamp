@@ -413,7 +413,7 @@ def goToURL(browser: WebDriver, url: str):
             browser.get(url)
             browser.set_page_load_timeout(30)
             return
-        except(TimeoutException):
+        except:
             browser.refresh()
             continue
 
