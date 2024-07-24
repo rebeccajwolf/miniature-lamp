@@ -411,8 +411,9 @@ def goToURL(browser: WebDriver, url: str):
     while True:
         try:
             browser.get(url)
-            browser.set_page_load_timeout(60)
+            browser.set_page_load_timeout(40)
         except(TimeoutException):
+            browser.refresh()
             continue
 
 
