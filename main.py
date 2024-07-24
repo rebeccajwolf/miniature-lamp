@@ -1959,7 +1959,7 @@ def completeMorePromotions(browser: WebDriver):
     # i = 0
     for promotion in morePromotions:
         try:
-            promotionTitle = promotion["title"]
+            promotionTitle = promotion["title"].replace("\u200b", "").replace("\xa0", " ")
             # print(f"promotionTitle={promotionTitle}")
             if (promotion["complete"] is not False or promotion["pointProgressMax"] == 0):
                 # i += 1
