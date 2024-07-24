@@ -418,6 +418,9 @@ def goToURL(browser: WebDriver, url: str):
             browser.refresh()
             print("GoToURL Error")
             continue
+        except(Exception) as e:
+            displayError(e)
+            break
 
 
 def displayError(exc: Exception):
