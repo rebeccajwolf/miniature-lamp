@@ -409,11 +409,12 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
 @retry_on_500_errors
 def goToURL(browser: WebDriver, url: str):
     while True:
-        try:
-            browser.get(url)
-            browser.set_page_load_timeout(40)
-        except(TimeoutException):
+        print("trying GoToURL")
+        browser.get(url)
+        browser.set_page_load_timeout(40)
+        with contextlib.suppress(TimeoutException):
             browser.refresh()
+            print("GoToURL Error")
             continue
 
 
@@ -1542,7 +1543,7 @@ def completeDailySet(browser: WebDriver):
     todayDate = datetime.today().strftime('%m/%d/%Y')
     todayPack = []
     i = 0
-    for j in range(2):
+    for j in range(3):
         try:
             for date_, data in d['dailySetPromotions'].items():
                 if date_ == todayDate:
@@ -1608,13 +1609,13 @@ def completeDailySet(browser: WebDriver):
                                 print(
                                     '[DAILY SET]', 'Completing quiz of card ' + str(cardNumber))
                                 completeDailySetVariableActivity()
-            if j == 1:
+            if j == 2:
                 break
             resetTabs(browser)
             i = 0
         except Exception as exc:
             displayError(exc)
-            if j == 2:
+            if j == 3:
                 error = True
             resetTabs(browser)
             i = 0
