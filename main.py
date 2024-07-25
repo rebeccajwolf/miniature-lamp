@@ -81,7 +81,7 @@ SUPER_FAST = False  # fast but super
 BASE_URL = "https://rewards.bing.com/"
 START_TIME = float(5)
 END_TIME = float(13)
-LOGIN_URL = os.environ.get("URL", "https://rewards.bing.com/Signin/")
+LOGIN_URL = os.environ.get("URL", "https://bing.com/rewards/signin/")
 REDEEMABLE = False
 
 # Auto Redeem - Define max amount of auto-redeems per run and counter
@@ -397,7 +397,6 @@ def browserSetupv3(isMobile: bool = False, proxy: str = None) -> WebDriver:
     options.add_argument("--disable-default-apps")
     options.add_argument("--disable-features=Translate")
     options.add_argument('--disable-features=PrivacySandboxSettings4')
-    options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     if ARGS.edge:
         browser = edgedriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()), options=options)
@@ -525,8 +524,8 @@ def login(browser: WebDriver, email: str, pwd: str, totpSecret: str, isMobile: b
             if browser.title == 'Microsoft account | Home' or isElementExists(browser, By.CSS_SELECTOR, 'html[data-role-name="RewardsPortal"]'):
                 prGreen('[LOGIN] Account already logged in !')
                 checkRewardsLogin(browser)
-                print('[LOGIN]', 'Ensuring login on Bing...')
-                checkBingLogin(browser)
+                # print('[LOGIN]', 'Ensuring login on Bing...')
+                # checkBingLogin(browser)
                 return
             elif browser.title == 'Your account has been temporarily suspended' or browser.current_url.startswith("https://account.live.com/Abuse"):
                 raise AccountLockedException
@@ -546,11 +545,15 @@ def login(browser: WebDriver, email: str, pwd: str, totpSecret: str, isMobile: b
                     time.sleep(5)
                     answerTOTP(totpSecret)
                     prGreen('[LOGIN] Account logged in again !')
-                    print('[LOGIN]', 'Ensuring login on Bing...')
-                    checkBingLogin(browser)
+                    # print('[LOGIN]', 'Ensuring login on Bing...')
+                    # checkBingLogin(browser)
                     return
         # Wait complete loading
-        waitUntilVisible(browser, By.ID, 'i0116', 10)
+        waitUntilClickable(browser, By.ID, 'signin_link_SignInMS', 20)
+        time.sleep(3)
+        browser.find_element(By.ID, 'signin_link_SignInMS').click()
+        time.sleep(5)
+        waitUntilVisible(browser, By.ID, 'i0116', 20)
         # Enter email
         print('[LOGIN]', 'Writing email...')
         browser.find_element(By.NAME, "loginfmt").send_keys(email)
@@ -578,6 +581,7 @@ def login(browser: WebDriver, email: str, pwd: str, totpSecret: str, isMobile: b
         # print(f'Too Many Requests INFO = {tooManyRequests}')
         if not "Too Many Requests" in tooManyRequests:
             break
+    time.sleep(3)
     try:
         if ARGS.session:
             # Click Yes to stay signed in.
@@ -634,8 +638,8 @@ def login(browser: WebDriver, email: str, pwd: str, totpSecret: str, isMobile: b
     print('[LOGIN]', 'Logged-in !')
     checkRewardsLogin(browser)
     # Check Login
-    print('[LOGIN]', 'Ensuring login on Bing...')
-    checkBingLogin(browser)
+    # print('[LOGIN]', 'Ensuring login on Bing...')
+    # checkBingLogin(browser)
 
 
 def checkRewardsLogin(browser: WebDriver):
